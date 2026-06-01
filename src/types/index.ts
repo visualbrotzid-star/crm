@@ -79,3 +79,12 @@ export const ROLE_LABELS: Record<Role, string> = {
 export function isManager(role?: Role): boolean {
   return role === 'super_admin' || role === 'team_lead'
 }
+
+export const KPI_ICONS: Record<KpiMetric, string> = {
+  businesses_contacted: 'building',
+  follow_ups: 'repeat',
+  meetings_booked: 'calendar',
+  demos_done: 'monitor',
+  proposals_sent: 'file',
+  deals_closed: 'handshake',
+}
