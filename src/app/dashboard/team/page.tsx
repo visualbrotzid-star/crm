@@ -18,6 +18,11 @@ export default function TeamPage() {
   const [error, setError] = useState('')
   const supabase = createClient()
 
+  async function authHeaders() {
+    const { data: { session } } = await supabase.auth.getSession()
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` }
+  }
+
   async function loadAll() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { window.location.href = '/login'; return }
@@ -55,7 +60,7 @@ export default function TeamPage() {
       if (editUser) {
         const res = await fetch('/api/users', {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await authHeaders(),
           body: JSON.stringify({ id: editUser.id, full_name: form.full_name, user_role: form.user_role, password: form.password || undefined }),
         })
         const j = await res.json()
@@ -63,7 +68,7 @@ export default function TeamPage() {
       } else {
         const res = await fetch('/api/users', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await authHeaders(),
           body: JSON.stringify({ email: form.email, password: form.password, full_name: form.full_name, user_role: form.user_role }),
         })
         const j = await res.json()
@@ -83,7 +88,7 @@ export default function TeamPage() {
     if (!confirm(`Delete ${u.full_name}? This permanently removes their account and all their logs.`)) return
     const res = await fetch('/api/users', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders(),
       body: JSON.stringify({ id: u.id }),
     })
     const j = await res.json()
