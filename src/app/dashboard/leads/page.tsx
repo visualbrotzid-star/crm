@@ -77,7 +77,7 @@ export default function ManagerLeadsPage() {
             {filtered.map(lead => (
               <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100 text-sm">{lead.business_name}</td>
-                <td className="px-6 py-4 text-sm text-gray-500">{reps[lead.rep_id]?.full_name || '-'}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{reps[lead.rep_id]?.full_name || t('leads.unassigned')}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.contact_number || lead.email || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.location || '-'}</td>
                 <td className="px-6 py-4"><span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span></td>
@@ -98,7 +98,7 @@ export default function ManagerLeadsPage() {
               <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span>
             </div>
             <div className="text-xs text-gray-500 space-y-0.5">
-              <p>Rep: {reps[lead.rep_id]?.full_name || '-'}</p>
+              <p>{t('leads.rep')}: {reps[lead.rep_id]?.full_name || t('leads.unassigned')}</p>
               {(lead.contact_number || lead.email) && <p>{lead.contact_number || lead.email}</p>}
               {lead.location && <p>{lead.location}</p>}
             </div>

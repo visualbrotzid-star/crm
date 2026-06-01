@@ -60,12 +60,28 @@ export async function PATCH(request: Request) {
   const role = await verifyManager(request)
   if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, full_name, user_role, password } = await request.json()
+  const { id, full_name, user_role, password, active } = await request.json()
   const admin = createAdminClient()
 
   if (user_role === 'team_lead' && role !== 'super_admin') {
     return NextResponse.json({ error: 'Only Super Admin can assign Team Lead role' }, { status: 403 })
   }
+
+  // Handle activate / deactivate
+  if (typeof active === 'boolean') {
+    const { data: target } = await admin.from('profiles').select('role').eq('id', id).single()
+    if (target?.role === 'super_admin') {
+      return NextResponse.json({ error: 'Cannot deactivate Super Admin' }, { status: 403 })
+    }
+    if (target?.role === 'team_lead' && role !== 'super_admin') {
+      return NextResponse.json({ error: 'Only Super Admin can deactivate Team Leads' }, { status: 403 })
+    }
+    await admin.from('profiles').update({ active }).eq('id', id)
+    // Also ban/unban the auth user so a deactivated user cannot log in
+    await admin.auth.admin.updateUserById(id, { ban_duration: active ? 'none' : '876000h' })
+    return NextResponse.json({ success: true })
+  }
+
   if (full_name || user_role) {
     const updates: any = {}
     if (full_name) updates.full_name = full_name

@@ -6,6 +6,7 @@ import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Profile, Role } from '@/types'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import clsx from 'clsx'
 
 export default function TeamPage() {
   const [me, setMe] = useState<Profile | null>(null)
@@ -87,8 +88,25 @@ export default function TeamPage() {
     }
   }
 
+  async function handleToggleActive(u: Profile) {
+    const deactivating = u.active !== false
+    const msg = deactivating
+      ? `Deactivate ${u.full_name}? They won't be able to log in, but their leads and history are kept.`
+      : `Reactivate ${u.full_name}? They'll be able to log in again.`
+    if (!confirm(msg)) return
+    const res = await fetch('/api/users', {
+      method: 'PATCH',
+      headers: await authHeaders(),
+      body: JSON.stringify({ id: u.id, active: !deactivating }),
+    })
+    const j = await res.json()
+    if (!res.ok) { alert(j.error); return }
+    setLoading(true)
+    await loadAll()
+  }
+
   async function handleDelete(u: Profile) {
-    if (!confirm(`Delete ${u.full_name}? This permanently removes their account and all their logs.`)) return
+    if (!confirm(`Permanently delete ${u.full_name}? Their account is removed, but their leads are kept and become unassigned so you can reassign them later. This cannot be undone.`)) return
     const res = await fetch('/api/users', {
       method: 'DELETE',
       headers: await authHeaders(),
@@ -143,8 +161,11 @@ export default function TeamPage() {
                 <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-sm font-semibold">{initials}</div>
-                      <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{u.full_name}</span>
+                      <div className={clsx("w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold", u.active === false ? "bg-gray-200 dark:bg-gray-700 text-gray-400" : "bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300")}>{initials}</div>
+                      <div>
+                        <span className={clsx("font-medium text-sm", u.active === false ? "text-gray-400 line-through" : "text-gray-900 dark:text-gray-100")}>{u.full_name}</span>
+                        {u.active === false && <span className="ml-2 text-xs font-medium px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-400">{t('team.deactivated')}</span>}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{u.email}</td>
@@ -155,6 +176,7 @@ export default function TeamPage() {
                     {canManage && u.role !== 'super_admin' && (
                       <>
                         <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium mr-4">{t('common.edit')}</button>
+                        <button onClick={() => handleToggleActive(u)} className={clsx("text-sm font-medium mr-4", u.active === false ? "text-emerald-600 hover:text-emerald-700" : "text-amber-600 hover:text-amber-700")}>{u.active === false ? t('team.reactivate') : t('team.deactivate')}</button>
                         <button onClick={() => handleDelete(u)} className="text-sm text-red-500 hover:text-red-700 font-medium">{t('common.delete')}</button>
                       </>
                     )}
@@ -175,20 +197,21 @@ export default function TeamPage() {
           return (
             <div key={u.id} className="card p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-sm font-semibold flex-shrink-0">{initials}</div>
+                <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0", u.active === false ? "bg-gray-200 dark:bg-gray-700 text-gray-400" : "bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300")}>{initials}</div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{u.full_name}</p>
+                  <p className={clsx("font-medium text-sm truncate", u.active === false ? "text-gray-400 line-through" : "text-gray-900 dark:text-gray-100")}>{u.full_name}</p>
                   <p className="text-xs text-gray-500 truncate">{u.email}</p>
                 </div>
-                {roleBadge(u.role)}
+                {u.active === false ? <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400">{t('team.deactivated')}</span> : roleBadge(u.role)}
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
-                <span className="text-xs text-gray-400">{u.role === 'rep' ? (lastLog ? `Active ${format(new Date(lastLog), 'MMM d')}` : 'No activity') : ''}</span>
+                <span className="text-xs text-gray-400">{u.role === 'rep' ? (lastLog ? `${t('team.active')} ${format(new Date(lastLog), 'MMM d')}` : '') : ''}</span>
                 <div className="flex items-center gap-3">
                   {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 font-medium">{t('common.view')}</Link>}
                   {canManage && u.role !== 'super_admin' && (
                     <>
                       <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('common.edit')}</button>
+                      <button onClick={() => handleToggleActive(u)} className={clsx("text-sm font-medium", u.active === false ? "text-emerald-600" : "text-amber-600")}>{u.active === false ? t('team.reactivate') : t('team.deactivate')}</button>
                       <button onClick={() => handleDelete(u)} className="text-sm text-red-500 font-medium">{t('common.delete')}</button>
                     </>
                   )}

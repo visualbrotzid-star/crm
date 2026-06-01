@@ -20,7 +20,11 @@ export default function LoginPage() {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError(error.message)
+      // Banned/deactivated users get a specific auth error
+      const msg = /banned|disabled|deactiv/i.test(error.message)
+        ? 'This account has been deactivated. Contact your administrator.'
+        : error.message
+      setError(msg)
       setLoading(false)
       return
     }

@@ -7,6 +7,7 @@ export interface Profile {
   role: Role
   avatar_url?: string
   manager_id?: string
+  active?: boolean
   created_at: string
 }
 
