@@ -43,13 +43,13 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div className="card overflow-hidden">
-          <div className="grid gap-2 px-6 py-3 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
+          <div className="grid gap-2 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-400 uppercase" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
             <span>Date</span>
             {LABELS.map(l => <span key={l} className="text-center">{l}</span>)}
             <span>Notes</span>
           </div>
           {logs.map((log: DailyLog) => (
-            <div key={log.log_date} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
+            <div key={log.log_date} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{format(parseISO(log.log_date), 'MMM d')}</p>
               {METRICS.map(m => <div key={m} className="text-center text-sm font-semibold text-gray-900 dark:text-gray-100">{log[m as keyof DailyLog] as number}</div>)}
             </div>

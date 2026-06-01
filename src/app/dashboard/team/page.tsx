@@ -136,11 +136,11 @@ export default function TeamPage() {
               const initials = u.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
               const canManage = isSuperAdmin || (me?.role === 'team_lead' && u.role === 'rep')
               return (
-                <tr key={u.id} className="hover:bg-gray-50">
+                <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-semibold">{initials}</div>
-                      <span className="font-medium text-gray-900 text-sm">{u.full_name}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{u.full_name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{u.email}</td>
@@ -165,7 +165,7 @@ export default function TeamPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{editUser ? 'Edit User' : 'Add New User'}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{editUser ? 'Edit User' : 'Add New User'}</h2>
             <div className="space-y-4">
               {!editUser && (
                 <div>

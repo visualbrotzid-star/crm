@@ -16,7 +16,7 @@ export default function RepRow({ summary }: { summary: RepSummary }) {
               {initials}
             </div>
             <div>
-              <p className="font-semibold text-gray-900 text-sm">{rep.full_name}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{rep.full_name}</p>
               <p className="text-xs text-gray-400">{rep.email}</p>
             </div>
           </div>
@@ -27,7 +27,7 @@ export default function RepRow({ summary }: { summary: RepSummary }) {
         </div>
 
         {/* Progress bar */}
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3">
+        <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
           <div
             className={clsx('h-full rounded-full transition-all', getStatusBg(completion_pct))}
             style={{ width: `${completion_pct}%` }}

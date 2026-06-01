@@ -17,7 +17,7 @@ interface Props {
 
 export default function PeriodTabs({ value, onChange }: Props) {
   return (
-    <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+    <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit">
       {PERIODS.map(p => (
         <button
           key={p.value}

@@ -50,9 +50,9 @@ export default function ManagerLeadsPage() {
       </div>
 
       <div className="flex gap-2 mb-4 flex-wrap">
-        <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600'}`}>All</button>
+        <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>All</button>
         {LEAD_STATUSES.map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600'}`}>{LEAD_STATUS_LABELS[s]}</button>
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>{LEAD_STATUS_LABELS[s]}</button>
         ))}
       </div>
 
@@ -69,8 +69,8 @@ export default function ManagerLeadsPage() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filtered.map(lead => (
-              <tr key={lead.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-medium text-gray-900 text-sm">{lead.business_name}</td>
+              <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100 text-sm">{lead.business_name}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{reps[lead.rep_id]?.full_name || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.contact_number || lead.email || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.location || '-'}</td>

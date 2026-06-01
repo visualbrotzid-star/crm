@@ -77,7 +77,7 @@ export default function TargetsPage() {
         {PERIODS.map(period => (
           <div key={period} className="card p-6">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-semibold text-gray-900 capitalize">{PERIOD_LABELS[period]} Targets</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-gray-100 capitalize">{PERIOD_LABELS[period]} Targets</h2>
               <button
                 onClick={() => handleSave(period)}
                 disabled={saving === period}

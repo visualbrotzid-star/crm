@@ -70,7 +70,7 @@ export default function RepDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-gray-900 dark:text-gray-100">{label}</h2>
                 <div className="flex items-center gap-3">
-                  <div className="h-2 w-32 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 w-32 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div className={clsx('h-full rounded-full transition-all', getStatusBg(pct))} style={{ width: `${pct}%` }} />
                   </div>
                   <span className={clsx('text-sm font-bold', getStatusColor(pct))}>{pct}%</span>
