@@ -5,6 +5,7 @@ export const translations = {
     // Nav
     'nav.overview': 'Overview',
     'nav.leads': 'Leads',
+    'nav.teamLeads': 'Team Leads',
     'nav.team': 'Team',
     'nav.targets': 'KPI Targets',
     'nav.reports': 'Reports',
@@ -69,6 +70,7 @@ export const translations = {
     'leads.business': 'Business',
     'leads.rep': 'Rep',
     'leads.unassigned': 'Unassigned',
+    'leads.inPipeline': 'leads in your pipeline',
     'leads.contact': 'Contact',
     'leads.updateStatus': 'Update Status',
     'leads.logActivity': 'Log an Activity',
@@ -166,6 +168,7 @@ export const translations = {
     // Nav
     'nav.overview': 'Ringkasan',
     'nav.leads': 'Prospek',
+    'nav.teamLeads': 'Prospek Tim',
     'nav.team': 'Tim',
     'nav.targets': 'Target KPI',
     'nav.reports': 'Laporan',
@@ -230,6 +233,7 @@ export const translations = {
     'leads.business': 'Bisnis',
     'leads.rep': 'Sales',
     'leads.unassigned': 'Belum Ditugaskan',
+    'leads.inPipeline': 'prospek di pipeline Anda',
     'leads.contact': 'Kontak',
     'leads.updateStatus': 'Perbarui Status',
     'leads.logActivity': 'Catat Aktivitas',

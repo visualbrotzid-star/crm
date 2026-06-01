@@ -8,6 +8,12 @@ export const MANAGER_TOUR: TourStep[] = [
     bodyId: 'Halaman utama Anda. Lihat progres KPI mingguan dan performa tiap sales sekilas.',
   },
   {
+    selector: '[data-tour="nav-my-leads"]',
+    titleEn: 'Your Own Leads', titleId: 'Prospek Anda Sendiri',
+    bodyEn: 'You can manage your own pipeline too — add leads, track status, and your KPIs count automatically just like a rep.',
+    bodyId: 'Anda juga bisa mengelola pipeline sendiri — tambah prospek, lacak status, dan KPI Anda dihitung otomatis seperti sales.',
+  },
+  {
     selector: '[data-tour="nav-leads"]',
     titleEn: 'Leads Pipeline', titleId: 'Pipeline Prospek',
     bodyEn: 'Every lead your team is working, with status and owner. Click any lead to see its full history.',

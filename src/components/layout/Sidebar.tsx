@@ -13,7 +13,8 @@ import clsx from 'clsx'
 
 const NAV_MANAGER: { href: string; key: TranslationKey; tour: string }[] = [
   { href: '/dashboard', key: 'nav.overview', tour: 'nav-overview' },
-  { href: '/dashboard/leads', key: 'nav.leads', tour: 'nav-leads' },
+  { href: '/dashboard/my-leads', key: 'nav.myLeads', tour: 'nav-my-leads' },
+  { href: '/dashboard/leads', key: 'nav.teamLeads', tour: 'nav-leads' },
   { href: '/dashboard/team', key: 'nav.team', tour: 'nav-team' },
   { href: '/dashboard/targets', key: 'nav.targets', tour: 'nav-targets' },
   { href: '/dashboard/reports', key: 'nav.reports', tour: 'nav-reports' },
