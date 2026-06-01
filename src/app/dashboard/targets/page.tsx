@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useI18n } from '@/lib/i18n/I18nProvider'
-import { KpiMetric, KPI_LABELS } from '@/types'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
+import { KpiMetric } from '@/types'
 
 const PERIODS = ['daily', 'weekly', 'monthly', 'quarterly'] as const
 const METRICS: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
@@ -24,6 +24,7 @@ export default function TargetsPage() {
   const [saved, setSaved] = useState<string | null>(null)
   const supabase = createClient()
   const { t } = useI18n()
+  const L = useLabels()
 
   useEffect(() => {
     async function load() {
@@ -93,7 +94,7 @@ export default function TargetsPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {METRICS.map(m => (
                 <div key={m}>
-                  <label className="label">{KPI_LABELS[m]}</label>
+                  <label className="label">{L.kpi(m)}</label>
                   <input
                     type="number"
                     min="0"

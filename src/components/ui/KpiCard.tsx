@@ -1,4 +1,7 @@
-import { KpiMetric, KPI_LABELS } from '@/types'
+'use client'
+
+import { KpiMetric } from '@/types'
+import { useLabels } from '@/lib/i18n/I18nProvider'
 import { getStatusBg } from '@/lib/kpi'
 import clsx from 'clsx'
 
@@ -9,12 +12,13 @@ interface Props {
 }
 
 export default function KpiCard({ metric, actual, target }: Props) {
+  const L = useLabels()
   const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-tight">{KPI_LABELS[metric]}</span>
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-tight">{L.kpi(metric)}</span>
         <span className="text-xs font-medium text-gray-400">{pct}%</span>
       </div>
 

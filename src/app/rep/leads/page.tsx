@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useI18n } from '@/lib/i18n/I18nProvider'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Lead, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
 import Link from 'next/link'
 
@@ -14,6 +14,7 @@ export default function RepLeadsPage() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ business_name: '', email: '', instagram_id: '', website: '', contact_number: '', location: '', remarks: '' })
   const supabase = createClient()
+  const L = useLabels()
   const { t } = useI18n()
 
   async function load() {
@@ -59,15 +60,15 @@ export default function RepLeadsPage() {
         <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>All ({counts.all})</button>
         {LEAD_STATUSES.map(s => (
           <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>
-            {LEAD_STATUS_LABELS[s]} ({counts[s]})
+            {L.status(s)} ({counts[s]})
           </button>
         ))}
       </div>
 
       {!filtered.length ? (
         <div className="card p-12 text-center">
-          <p className="font-medium text-gray-700 dark:text-gray-300">No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p>
-          <p className="text-sm text-gray-400 mt-1">Add your first lead to start tracking</p>
+          <p className="font-medium text-gray-700 dark:text-gray-300">No leads {filter !== 'all' ? `in ${L.status(filter as LeadStatus)}` : 'yet'}</p>
+          <p className="text-sm text-gray-400 mt-1">{t('leads.addFirstLead')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -75,7 +76,7 @@ export default function RepLeadsPage() {
             <Link key={lead.id} href={`/rep/leads/${lead.id}`} className="card p-5 hover:border-brand-200 hover:shadow-md transition-all">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">{lead.business_name}</h3>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span>
               </div>
               {lead.location && <p className="text-sm text-gray-500">{lead.location}</p>}
               {lead.contact_number && <p className="text-sm text-gray-400 mt-1">{lead.contact_number}</p>}
@@ -90,13 +91,13 @@ export default function RepLeadsPage() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('leads.addNewLead')}</h2>
             <div className="space-y-3">
-              <div><label className="label">Business Name *</label><input className="input" value={form.business_name} onChange={e => setForm({ ...form, business_name: e.target.value })} placeholder="Filli Cafe" /></div>
-              <div><label className="label">Email</label><input className="input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="contact@business.com" /></div>
-              <div><label className="label">Instagram ID</label><input className="input" value={form.instagram_id} onChange={e => setForm({ ...form, instagram_id: e.target.value })} placeholder="@business" /></div>
-              <div><label className="label">Website</label><input className="input" value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="business.com" /></div>
-              <div><label className="label">Contact Number</label><input className="input" value={form.contact_number} onChange={e => setForm({ ...form, contact_number: e.target.value })} placeholder="+971 50 123 4567" /></div>
-              <div><label className="label">Location</label><input className="input" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="Dubai Marina" /></div>
-              <div><label className="label">Remarks</label><textarea className="input resize-none" rows={2} value={form.remarks} onChange={e => setForm({ ...form, remarks: e.target.value })} placeholder="Any context..." /></div>
+              <div><label className="label">{t('leads.businessName')} *</label><input className="input" value={form.business_name} onChange={e => setForm({ ...form, business_name: e.target.value })} placeholder={t('ph.businessName')} /></div>
+              <div><label className="label">{t('leads.email')}</label><input className="input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder={t('ph.contactEmail')} /></div>
+              <div><label className="label">{t('leads.instagram')}</label><input className="input" value={form.instagram_id} onChange={e => setForm({ ...form, instagram_id: e.target.value })} placeholder={t('ph.instagram')} /></div>
+              <div><label className="label">{t('leads.website')}</label><input className="input" value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder={t('ph.website')} /></div>
+              <div><label className="label">{t('leads.contactNumber')}</label><input className="input" value={form.contact_number} onChange={e => setForm({ ...form, contact_number: e.target.value })} placeholder={t('ph.phone')} /></div>
+              <div><label className="label">{t('leads.location')}</label><input className="input" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder={t('ph.location')} /></div>
+              <div><label className="label">{t('leads.remarks')}</label><textarea className="input resize-none" rows={2} value={form.remarks} onChange={e => setForm({ ...form, remarks: e.target.value })} placeholder={t('ph.remarks')} /></div>
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowModal(false)} className="btn-secondary flex-1">{t('common.cancel')}</button>
                 <button onClick={handleCreate} disabled={saving || !form.business_name.trim()} className="btn-primary flex-1">{saving ? 'Saving...' : 'Add Lead'}</button>

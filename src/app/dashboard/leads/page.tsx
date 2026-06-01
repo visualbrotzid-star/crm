@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { useI18n } from '@/lib/i18n/I18nProvider'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Lead, Profile, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
 
 export default function ManagerLeadsPage() {
@@ -12,6 +12,7 @@ export default function ManagerLeadsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<LeadStatus | 'all'>('all')
   const supabase = createClient()
+  const L = useLabels()
   const { t } = useI18n()
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function ManagerLeadsPage() {
         {LEAD_STATUSES.map(s => (
           <div key={s} className="card p-3 text-center">
             <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{counts[s]}</p>
-            <p className="text-xs text-gray-400 mt-1">{LEAD_STATUS_LABELS[s]}</p>
+            <p className="text-xs text-gray-400 mt-1">{L.status(s)}</p>
           </div>
         ))}
       </div>
@@ -55,7 +56,7 @@ export default function ManagerLeadsPage() {
       <div className="flex gap-2 mb-4 flex-wrap">
         <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>{t('common.all')}</button>
         {LEAD_STATUSES.map(s => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>{LEAD_STATUS_LABELS[s]}</button>
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>{L.status(s)}</button>
         ))}
       </div>
 
@@ -79,13 +80,13 @@ export default function ManagerLeadsPage() {
                 <td className="px-6 py-4 text-sm text-gray-500">{reps[lead.rep_id]?.full_name || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.contact_number || lead.email || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.location || '-'}</td>
-                <td className="px-6 py-4"><span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span></td>
-                <td className="px-6 py-4 text-right"><Link href={`/dashboard/leads/${lead.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium">View</Link></td>
+                <td className="px-6 py-4"><span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span></td>
+                <td className="px-6 py-4 text-right"><Link href={`/dashboard/leads/${lead.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium">{t('common.view')}</Link></td>
               </tr>
             ))}
           </tbody>
         </table>
-        {!filtered.length && <div className="text-center py-12 text-gray-400"><p>No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p></div>}
+        {!filtered.length && <div className="text-center py-12 text-gray-400"><p>No leads {filter !== 'all' ? `in ${L.status(filter as LeadStatus)}` : 'yet'}</p></div>}
       </div>
 
       {/* Mobile cards */}
@@ -94,7 +95,7 @@ export default function ManagerLeadsPage() {
           <Link key={lead.id} href={`/dashboard/leads/${lead.id}`} className="card p-4 block">
             <div className="flex items-start justify-between gap-2 mb-2">
               <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{lead.business_name}</p>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span>
             </div>
             <div className="text-xs text-gray-500 space-y-0.5">
               <p>Rep: {reps[lead.rep_id]?.full_name || '-'}</p>
@@ -103,7 +104,7 @@ export default function ManagerLeadsPage() {
             </div>
           </Link>
         ))}
-        {!filtered.length && <div className="card text-center py-12 text-gray-400"><p>No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p></div>}
+        {!filtered.length && <div className="card text-center py-12 text-gray-400"><p>No leads {filter !== 'all' ? `in ${L.status(filter as LeadStatus)}` : 'yet'}</p></div>}
       </div>
     </div>
   )

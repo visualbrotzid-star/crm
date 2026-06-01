@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { DailyLog, KpiTarget, KpiMetric, Lead, LeadActivity, KPI_LABELS, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
 import KpiCard from '@/components/ui/KpiCard'
 import { format, parseISO } from 'date-fns'
@@ -22,6 +23,8 @@ export default function RepDetailPage() {
   const [activities, setActivities] = useState<LeadActivity[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const { t } = useI18n()
+  const L = useLabels()
 
   useEffect(() => {
     async function load() {
@@ -43,12 +46,11 @@ export default function RepDetailPage() {
   }, [id])
 
   if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading...</div>
-  if (!rep) return <div className="p-4 md:p-8 text-gray-400 text-sm">Rep not found</div>
+  if (!rep) return <div className="p-4 md:p-8 text-gray-400 text-sm">{t('leads.repNotFound')}</div>
 
   const getTarget = (period: string) => targets.find((t: KpiTarget) => t.period === period) as KpiTarget | null
   const periods = ['daily', 'weekly', 'monthly', 'quarterly'] as const
-  const periodLabels: any = { daily: 'Today', weekly: 'This Week', monthly: 'This Month', quarterly: 'This Quarter' }
-  const initials = rep.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    const initials = rep.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
   const weeklyLogs = filterLogsByPeriod(logs, 'weekly')
   const weeklyPct = calcCompletionPct(sumLogs(weeklyLogs), getTarget('weekly'))
   const leadName = (leadId: string) => leads.find(l => l.id === leadId)?.business_name || 'a lead'
@@ -77,7 +79,7 @@ export default function RepDetailPage() {
         return (
           <div key={period} className="card p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900 dark:text-gray-100">{periodLabels[period]}</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-gray-100">{L.period(period)}</h2>
               <div className="flex items-center gap-2">
                 <div className="h-1.5 w-20 md:w-24 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div className={clsx('h-full rounded-full', getStatusBg(pct))} style={{ width: `${pct}%` }} />
@@ -96,7 +98,7 @@ export default function RepDetailPage() {
       <div className="card p-4 md:p-6 mb-4 md:mb-6">
         <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Leads ({leads.length})</h2>
         {!leads.length ? (
-          <p className="text-sm text-gray-400 py-4 text-center">No leads yet</p>
+          <p className="text-sm text-gray-400 py-4 text-center">{t('leads.noLeads')}</p>
         ) : (
           <div className="space-y-2">
             {leads.slice(0, 10).map(lead => (
@@ -105,7 +107,7 @@ export default function RepDetailPage() {
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{lead.business_name}</p>
                   {lead.location && <p className="text-xs text-gray-400 truncate">{lead.location}</p>}
                 </div>
-                <span className={clsx('text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0', LEAD_STATUS_COLORS[lead.status])}>{LEAD_STATUS_LABELS[lead.status]}</span>
+                <span className={clsx('text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0', LEAD_STATUS_COLORS[lead.status])}>{L.status(lead.status)}</span>
               </div>
             ))}
           </div>
@@ -114,9 +116,9 @@ export default function RepDetailPage() {
 
       {/* Activity history */}
       <div className="card p-4 md:p-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Activity</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('leads.recentActivity')}</h2>
         {!activities.length ? (
-          <p className="text-sm text-gray-400 py-4 text-center">No activity recorded yet</p>
+          <p className="text-sm text-gray-400 py-4 text-center">{t('leads.noActivityRecorded')}</p>
         ) : (
           <div className="space-y-3">
             {activities.map(a => (
@@ -124,7 +126,7 @@ export default function RepDetailPage() {
                 <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-emerald-500" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{KPI_LABELS[a.activity_type]}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{L.kpi(a.activity_type)}</span>
                     {' · '}{leadName(a.lead_id)}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">{format(parseISO(a.created_at), 'MMM d, h:mm a')}</p>

@@ -36,19 +36,19 @@ export default function HistoryPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('history.title')}</h1>
           <p className="text-gray-500 text-sm mt-1">Last {logs.length} entries</p>
         </div>
-        <Link href="/rep/leads" className="btn-primary">Go to Leads</Link>
+        <Link href="/rep/leads" className="btn-primary">{t('history.goToLeads')}</Link>
       </div>
       {!logs.length ? (
         <div className="card p-16 text-center">
           <p className="font-medium text-gray-700 dark:text-gray-300">{t('history.noActivity')}</p>
-          <p className="text-sm text-gray-400 mt-1">Work your leads to build up activity history</p><Link href="/rep/leads" className="btn-primary mt-4 inline-block">{t('history.goToLeads')}</Link>
+          <p className="text-sm text-gray-400 mt-1">{t('history.noActivityHint')}</p><Link href="/rep/leads" className="btn-primary mt-4 inline-block">{t('history.goToLeads')}</Link>
         </div>
       ) : (
         <>
           {/* Desktop grid */}
           <div className="card overflow-hidden hidden md:block">
             <div className="grid gap-2 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-400 uppercase" style={{ gridTemplateColumns: '120px repeat(6, 1fr)' }}>
-              <span>Date</span>
+              <span>{t('history.date')}</span>
               {LABELS.map(l => <span key={l} className="text-center">{l}</span>)}
             </div>
             {logs.map((log: DailyLog) => (

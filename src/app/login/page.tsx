@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -9,6 +10,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const supabase = createClient()
+  const { t } = useI18n()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -44,19 +46,19 @@ export default function LoginPage() {
           </div>
           <div>
             <p className="font-semibold text-gray-900 text-sm">SalesTrack</p>
-            <p className="text-xs text-gray-400">KPI Dashboard</p>
+            <p className="text-xs text-gray-400">{t('nav.kpiDashboard')}</p>
           </div>
         </div>
-        <h1 className="text-xl font-semibold text-gray-900 mb-1">Welcome back</h1>
-        <p className="text-sm text-gray-500 mb-6">Sign in to your team dashboard</p>
+        <h1 className="text-xl font-semibold text-gray-900 mb-1">{t('login.welcome')}</h1>
+        <p className="text-sm text-gray-500 mb-6">{t('login.subtitle')}</p>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="label">Email</label>
-            <input type="email" className="input" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
+            <label className="label">{t('leads.email')}</label>
+            <input type="email" className="input" placeholder={t('ph.email')} value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div>
-            <label className="label">Password</label>
-            <input type="password" className="input" placeholder="********" value={password} onChange={e => setPassword(e.target.value)} required />
+            <label className="label">{t('team.password')}</label>
+            <input type="password" className="input" placeholder={t('ph.password')} value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full">

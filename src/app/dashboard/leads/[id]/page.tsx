@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, LeadNote, LeadActivity, Profile, KPI_LABELS, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 import clsx from 'clsx'
@@ -17,6 +18,8 @@ export default function ManagerLeadDetailPage() {
   const [activities, setActivities] = useState<LeadActivity[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const { t } = useI18n()
+  const L = useLabels()
 
   useEffect(() => {
     async function load() {
@@ -38,12 +41,12 @@ export default function ManagerLeadDetailPage() {
   }, [id])
 
   if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading...</div>
-  if (!lead) return <div className="p-4 md:p-8 text-gray-400 text-sm">Lead not found</div>
+  if (!lead) return <div className="p-4 md:p-8 text-gray-400 text-sm">{t('leads.leadNotFound')}</div>
 
   // Merge notes + activities into one timeline
   const timeline = [
     ...notes.map(n => ({ id: n.id, kind: 'note' as const, ts: n.created_at, text: n.note, status_change: n.status_change })),
-    ...activities.map(a => ({ id: a.id, kind: 'activity' as const, ts: a.created_at, text: a.note || KPI_LABELS[a.activity_type], status_change: null })),
+    ...activities.map(a => ({ id: a.id, kind: 'activity' as const, ts: a.created_at, text: a.note || L.kpi(a.activity_type), status_change: null })),
   ].sort((a, b) => b.ts.localeCompare(a.ts))
 
   return (
@@ -56,7 +59,7 @@ export default function ManagerLeadDetailPage() {
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{lead.business_name}</h1>
             {rep && <p className="text-sm text-gray-400 mt-1">Owned by {rep.full_name}</p>}
           </div>
-          <span className={clsx('text-sm font-medium px-3 py-1 rounded-full flex-shrink-0', LEAD_STATUS_COLORS[lead.status])}>{LEAD_STATUS_LABELS[lead.status]}</span>
+          <span className={clsx('text-sm font-medium px-3 py-1 rounded-full flex-shrink-0', LEAD_STATUS_COLORS[lead.status])}>{L.status(lead.status)}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           {lead.email && <div><span className="text-gray-400">Email:</span> <span className="text-gray-700 dark:text-gray-300">{lead.email}</span></div>}
@@ -69,9 +72,9 @@ export default function ManagerLeadDetailPage() {
       </div>
 
       <div className="card p-4 md:p-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Activity & Notes</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('leads.activityNotes')}</h2>
         {!timeline.length ? (
-          <p className="text-sm text-gray-400 text-center py-4">No activity yet</p>
+          <p className="text-sm text-gray-400 text-center py-4">{t('leads.noActivity')}</p>
         ) : (
           <div className="space-y-3">
             {timeline.map(item => (

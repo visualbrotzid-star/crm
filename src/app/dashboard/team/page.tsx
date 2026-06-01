@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useI18n } from '@/lib/i18n/I18nProvider'
-import { Profile, Role, ROLE_LABELS } from '@/types'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
+import { Profile, Role } from '@/types'
 import Link from 'next/link'
 import { format } from 'date-fns'
 
@@ -19,6 +19,7 @@ export default function TeamPage() {
   const [error, setError] = useState('')
   const supabase = createClient()
   const { t } = useI18n()
+  const L = useLabels()
 
   async function authHeaders() {
     const { data: { session } } = await supabase.auth.getSession()
@@ -108,7 +109,7 @@ export default function TeamPage() {
       team_lead: 'bg-blue-50 text-blue-700',
       rep: 'bg-emerald-50 text-emerald-700',
     }
-    return <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${styles[role]}`}>{ROLE_LABELS[role]}</span>
+    return <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${styles[role]}`}>{L.role(role)}</span>
   }
 
   return (
@@ -150,11 +151,11 @@ export default function TeamPage() {
                   <td className="px-6 py-4">{roleBadge(u.role)}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{u.role === 'rep' ? (lastLog ? format(new Date(lastLog), 'MMM d') : 'Never') : '-'}</td>
                   <td className="px-6 py-4 text-right whitespace-nowrap">
-                    {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium mr-4">View</Link>}
+                    {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium mr-4">{t('common.view')}</Link>}
                     {canManage && u.role !== 'super_admin' && (
                       <>
-                        <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium mr-4">Edit</button>
-                        <button onClick={() => handleDelete(u)} className="text-sm text-red-500 hover:text-red-700 font-medium">Delete</button>
+                        <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium mr-4">{t('common.edit')}</button>
+                        <button onClick={() => handleDelete(u)} className="text-sm text-red-500 hover:text-red-700 font-medium">{t('common.delete')}</button>
                       </>
                     )}
                   </td>
@@ -184,11 +185,11 @@ export default function TeamPage() {
               <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
                 <span className="text-xs text-gray-400">{u.role === 'rep' ? (lastLog ? `Active ${format(new Date(lastLog), 'MMM d')}` : 'No activity') : ''}</span>
                 <div className="flex items-center gap-3">
-                  {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 font-medium">View</Link>}
+                  {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 font-medium">{t('common.view')}</Link>}
                   {canManage && u.role !== 'super_admin' && (
                     <>
-                      <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 font-medium">Edit</button>
-                      <button onClick={() => handleDelete(u)} className="text-sm text-red-500 font-medium">Delete</button>
+                      <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('common.edit')}</button>
+                      <button onClick={() => handleDelete(u)} className="text-sm text-red-500 font-medium">{t('common.delete')}</button>
                     </>
                   )}
                 </div>
@@ -205,23 +206,23 @@ export default function TeamPage() {
             <div className="space-y-4">
               {!editUser && (
                 <div>
-                  <label className="label">Email</label>
-                  <input type="email" className="input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="user@email.com" />
+                  <label className="label">{t('leads.email')}</label>
+                  <input type="email" className="input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder={t('ph.email')} />
                 </div>
               )}
               <div>
                 <label className="label">{t('team.fullName')}</label>
-                <input type="text" className="input" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder="John Doe" />
+                <input type="text" className="input" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder={t('ph.fullName')} />
               </div>
               <div>
                 <label className="label">{editUser ? 'New Password (leave blank to keep)' : 'Password'}</label>
-                <input type="text" className="input" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="********" />
+                <input type="text" className="input" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder={t('ph.password')} />
               </div>
               <div>
-                <label className="label">Role</label>
+                <label className="label">{t('team.role')}</label>
                 <select className="input" value={form.user_role} onChange={e => setForm({ ...form, user_role: e.target.value as Role })}>
-                  <option value="rep">Sales Rep</option>
-                  {isSuperAdmin && <option value="team_lead">Team Lead</option>}
+                  <option value="rep">{t('team.salesRep')}</option>
+                  {isSuperAdmin && <option value="team_lead">{t('team.teamLead')}</option>}
                 </select>
               </div>
               {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}

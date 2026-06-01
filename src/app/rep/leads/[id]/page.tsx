@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, LeadNote, LeadActivity, LeadStatus, KpiMetric, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, STATUS_TO_KPI, KPI_LABELS } from '@/types'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 
@@ -19,6 +20,8 @@ export default function LeadDetailPage() {
   const [newNote, setNewNote] = useState('')
   const [saving, setSaving] = useState(false)
   const supabase = createClient()
+  const { t } = useI18n()
+  const L = useLabels()
 
   async function load() {
     const { data: { session } } = await supabase.auth.getSession()
@@ -50,11 +53,11 @@ export default function LeadDetailPage() {
     await supabase.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id)
     await supabase.from('lead_notes').insert({
       lead_id: id, author_id: session!.user.id,
-      note: `Status changed to ${LEAD_STATUS_LABELS[newStatus]}`, status_change: newStatus,
+      note: `Status changed to ${L.status(newStatus)}`, status_change: newStatus,
     })
     // Log the KPI activity for this status (dated, single source of truth)
     const metric = STATUS_TO_KPI[newStatus]
-    if (metric) await logActivity(metric, `Lead moved to ${LEAD_STATUS_LABELS[newStatus]}`)
+    if (metric) await logActivity(metric, `Lead moved to ${L.status(newStatus)}`)
     setSaving(false)
     setLoading(true)
     await load()
@@ -62,7 +65,7 @@ export default function LeadDetailPage() {
 
   async function manualLog(type: KpiMetric) {
     setSaving(true)
-    await logActivity(type, `Logged ${KPI_LABELS[type]}`)
+    await logActivity(type, `Logged ${L.kpi(type)}`)
     await supabase.from('leads').update({ updated_at: new Date().toISOString() }).eq('id', id)
     setSaving(false)
     setLoading(true)
@@ -82,7 +85,7 @@ export default function LeadDetailPage() {
   }
 
   if (loading) return <div className="p-8 text-gray-400 text-sm">Loading...</div>
-  if (!lead) return <div className="p-8 text-gray-400 text-sm">Lead not found</div>
+  if (!lead) return <div className="p-8 text-gray-400 text-sm">{t('leads.leadNotFound')}</div>
 
   return (
     <div className="p-4 md:p-8 max-w-3xl">
@@ -91,7 +94,7 @@ export default function LeadDetailPage() {
       <div className="card p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{lead.business_name}</h1>
-          <span className={`text-sm font-medium px-3 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span>
+          <span className={`text-sm font-medium px-3 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
           {lead.email && <div><span className="text-gray-400">Email:</span> <span className="text-gray-700 dark:text-gray-300">{lead.email}</span></div>}
@@ -104,12 +107,12 @@ export default function LeadDetailPage() {
       </div>
 
       <div className="card p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Update Status</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('leads.updateStatus')}</h2>
         <div className="flex gap-2 flex-wrap">
           {LEAD_STATUSES.map(s => (
             <button key={s} onClick={() => changeStatus(s)} disabled={saving || s === lead.status}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${s === lead.status ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-              {LEAD_STATUS_LABELS[s]}
+              {L.status(s)}
             </button>
           ))}
         </div>
@@ -117,27 +120,27 @@ export default function LeadDetailPage() {
       </div>
 
       <div className="card p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Log an Activity</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{t('leads.logActivity')}</h2>
         <p className="text-xs text-gray-400 mb-3">Log extra actions on this lead (e.g. a demo or proposal) that count toward your KPIs.</p>
         <div className="flex gap-2 flex-wrap">
           {LOGGABLE.map(m => (
             <button key={m} onClick={() => manualLog(m)} disabled={saving}
               className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:text-brand-700 dark:hover:text-brand-300 transition-all">
-              + {KPI_LABELS[m]}
+              + {L.kpi(m)}
             </button>
           ))}
         </div>
       </div>
 
       <div className="card p-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Activity & Notes</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('leads.activityNotes')}</h2>
         <div className="flex gap-2 mb-4">
-          <input className="input flex-1" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note..." onKeyDown={e => e.key === 'Enter' && addNote()} />
+          <input className="input flex-1" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder={t('ph.note')} onKeyDown={e => e.key === 'Enter' && addNote()} />
           <button onClick={addNote} disabled={saving || !newNote.trim()} className="btn-primary">Add</button>
         </div>
         <div className="space-y-3">
           {[...notes.map(n => ({ ...n, kind: 'note' as const, ts: n.created_at })),
-            ...activities.map(a => ({ ...a, kind: 'activity' as const, ts: a.created_at, note: a.note || KPI_LABELS[a.activity_type] }))]
+            ...activities.map(a => ({ ...a, kind: 'activity' as const, ts: a.created_at, note: a.note || L.kpi(a.activity_type) }))]
             .sort((a, b) => b.ts.localeCompare(a.ts))
             .map((item: any) => (
             <div key={item.id} className="flex gap-3 pb-3 border-b border-gray-50 last:border-0">
@@ -148,7 +151,7 @@ export default function LeadDetailPage() {
               </div>
             </div>
           ))}
-          {!notes.length && !activities.length && <p className="text-sm text-gray-400 text-center py-4">No activity yet</p>}
+          {!notes.length && !activities.length && <p className="text-sm text-gray-400 text-center py-4">{t('leads.noActivity')}</p>}
         </div>
       </div>
     </div>

@@ -1,9 +1,13 @@
+'use client'
+
 import Link from 'next/link'
-import { RepSummary, KPI_LABELS } from '@/types'
+import { useI18n } from '@/lib/i18n/I18nProvider'
+import { RepSummary } from '@/types'
 import { getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
 import clsx from 'clsx'
 
 export default function RepRow({ summary }: { summary: RepSummary }) {
+  const { t } = useI18n()
   const { rep, totals, targets, completion_pct } = summary
   const initials = rep.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
@@ -38,15 +42,15 @@ export default function RepRow({ summary }: { summary: RepSummary }) {
         <div className="grid grid-cols-3 gap-2 text-center">
           <div>
             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totals.businesses_contacted}</p>
-            <p className="text-xs text-gray-400">Contacted</p>
+            <p className="text-xs text-gray-400">{t('reports.contacted')}</p>
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totals.meetings_booked}</p>
-            <p className="text-xs text-gray-400">Meetings</p>
+            <p className="text-xs text-gray-400">{t('reports.meetings')}</p>
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totals.deals_closed}</p>
-            <p className="text-xs text-gray-400">Deals</p>
+            <p className="text-xs text-gray-400">{t('reports.deals')}</p>
           </div>
         </div>
       </div>

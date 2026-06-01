@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useI18n } from '@/lib/i18n/I18nProvider'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { useTheme } from '@/components/theme/ThemeProvider'
 import { DailyLog, Profile, KpiMetric, KPI_LABELS } from '@/types'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from 'recharts'
@@ -17,6 +17,7 @@ export default function ReportsPage() {
   const { theme } = useTheme()
   const supabase = createClient()
   const { t } = useI18n()
+  const L = useLabels()
   const dark = theme === 'dark'
   const axisColor = dark ? '#6b7280' : '#9ca3af'
   const gridColor = dark ? '#1f2937' : '#f0f0f0'
@@ -92,7 +93,7 @@ export default function ReportsPage() {
         {METRICS.map(m => (
           <div key={m} className="card p-3 md:p-4">
             <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{totals[m]}</p>
-            <p className="text-xs text-gray-400 mt-1 leading-tight">{KPI_LABELS[m]}</p>
+            <p className="text-xs text-gray-400 mt-1 leading-tight">{L.kpi(m)}</p>
           </div>
         ))}
       </div>

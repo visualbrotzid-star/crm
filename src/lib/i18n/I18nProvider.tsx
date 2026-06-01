@@ -30,3 +30,17 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useI18n = () => useContext(I18nContext)
+
+// Helper hooks for translating database-derived labels (fixed vocabularies)
+export function useLabels() {
+  const { t } = useI18n()
+  return {
+    status: (s: string) => t(`status.${s}` as any),
+    role: (r: string) => t(`role.${r}` as any),
+    kpi: (m: string) => t(`kpi.${m}` as any),
+    period: (p: string) => {
+      const map: Record<string, string> = { daily: 'period.today', weekly: 'period.thisWeek', monthly: 'period.thisMonth', quarterly: 'period.thisQuarter' }
+      return t((map[p] || p) as any)
+    },
+  }
+}

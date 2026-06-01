@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useI18n } from '@/lib/i18n/I18nProvider'
+import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { DailyLog, KpiTarget, KpiMetric } from '@/types'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
 import KpiCard from '@/components/ui/KpiCard'
@@ -18,6 +18,7 @@ export default function RepDashboard() {
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
   const { t } = useI18n()
+  const L = useLabels()
 
   useEffect(() => {
     async function load() {
@@ -38,10 +39,10 @@ export default function RepDashboard() {
 
   const getTarget = (p: string) => targets.find((t: KpiTarget) => t.period === p) as KpiTarget | null
   const periods = [
-    { key: 'daily' as const, label: 'Today' },
-    { key: 'weekly' as const, label: 'This Week' },
-    { key: 'monthly' as const, label: 'This Month' },
-    { key: 'quarterly' as const, label: 'This Quarter' },
+    { key: 'daily' as const, label: t('period.today') },
+    { key: 'weekly' as const, label: t('period.thisWeek') },
+    { key: 'monthly' as const, label: t('period.thisMonth') },
+    { key: 'quarterly' as const, label: t('period.thisQuarter') },
   ]
   const today = format(new Date(), 'EEEE, MMMM d')
   const todayStr = new Date().toISOString().split('T')[0]
@@ -52,13 +53,13 @@ export default function RepDashboard() {
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-sm text-gray-400 mb-1">{today}</p>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">My Performance</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('rep.myPerformance')}</h1>
           <p className="text-gray-500 text-sm mt-1">Hi {profile?.full_name?.split(' ')[0]} - here is how you are tracking</p>
         </div>
         {!loggedToday ? (
-          <a href="/rep/leads" className="btn-primary">Add a Lead</a>
+          <a href="/rep/leads" className="btn-primary">{t('rep.addLead')}</a>
         ) : (
-          <span className="bg-emerald-50 text-emerald-700 text-sm font-medium px-3 py-2 rounded-xl">Active</span>
+          <span className="bg-emerald-50 text-emerald-700 text-sm font-medium px-3 py-2 rounded-xl">{t('rep.active')}</span>
         )}
       </div>
       <div className="space-y-6">
