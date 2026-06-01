@@ -1,37 +1,52 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { DailyLog, KpiMetric } from '@/types'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
+
 const METRICS: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
 const LABELS = ['Contacted', 'Follow-ups', 'Meetings', 'Demos', 'Proposals', 'Deals']
+
 export default function HistoryPage() {
   const [logs, setLogs] = useState<DailyLog[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { window.location.href = '/login'; return }
-      const { data } = await supabase.from('daily_logs').select('*').eq('rep_id', session.user.id).order('log_date', { ascending: false }).limit(60)
-      setLogs(data || []); setLoading(false)
+      const { data } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', session.user.id).order('log_date', { ascending: false }).limit(60)
+      setLogs(data || [])
+      setLoading(false)
     }
     load()
   }, [])
+
   if (loading) return <div className="p-8 text-gray-400 text-sm">Loading...</div>
+
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
-        <div><h1 className="text-2xl font-bold text-gray-900">My Activity History</h1><p className="text-gray-500 text-sm mt-1">Last {logs.length} entries</p></div>
-        <Link href="/rep/log" className="btn-primary">Log Today</Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">My Activity History</h1>
+          <p className="text-gray-500 text-sm mt-1">Last {logs.length} entries</p>
+        </div>
+        <Link href="/rep/leads" className="btn-primary">Log Today</Link>
       </div>
       {!logs.length ? (
-        <div className="card p-16 text-center"><p className="font-medium text-gray-700">No logs yet</p><Link href="/rep/log" className="btn-primary mt-4 inline-block">Log today</Link></div>
+        <div className="card p-16 text-center">
+          <p className="font-medium text-gray-700">No logs yet</p>
+          <Link href="/rep/leads" className="btn-primary mt-4 inline-block">Log today</Link>
+        </div>
       ) : (
         <div className="card overflow-hidden">
           <div className="grid gap-2 px-6 py-3 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-400 uppercase" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
-            <span>Date</span>{LABELS.map(l => <span key={l} className="text-center">{l}</span>)}<span>Notes</span>
+            <span>Date</span>
+            {LABELS.map(l => <span key={l} className="text-center">{l}</span>)}
+            <span>Notes</span>
           </div>
           {logs.map((log: DailyLog) => (
             <div key={log.id} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>

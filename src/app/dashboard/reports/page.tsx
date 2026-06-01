@@ -20,7 +20,7 @@ export default function ReportsPage() {
       if (!session) { window.location.href = '/login'; return }
       const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
       const since = subDays(new Date(), 30).toISOString().split('T')[0]
-      const { data: logsData } = await supabase.from('daily_logs').select('*').gte('log_date', since).order('log_date')
+      const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', since).order('log_date')
       setReps(repsData || [])
       setLogs(logsData || [])
       setLoading(false)

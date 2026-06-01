@@ -29,7 +29,7 @@ export default function TeamPage() {
     const { data: meData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
     setMe(meData)
     const { data: usersData } = await supabase.from('profiles').select('*').order('role').order('full_name')
-    const { data: recentLogs } = await supabase.from('daily_logs').select('rep_id, log_date').order('log_date', { ascending: false })
+    const { data: recentLogs } = await supabase.from('rep_daily_kpis').select('rep_id, log_date').order('log_date', { ascending: false })
     const map: Record<string, string> = {}
     ;(recentLogs || []).forEach((l: any) => { if (!map[l.rep_id]) map[l.rep_id] = l.log_date })
     setUsers(usersData || [])

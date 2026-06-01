@@ -6,6 +6,7 @@ export interface Profile {
   full_name: string
   role: Role
   avatar_url?: string
+  manager_id?: string
   created_at: string
 }
 
@@ -23,7 +24,6 @@ export interface KpiTarget {
 }
 
 export interface DailyLog {
-  id: string
   rep_id: string
   log_date: string
   businesses_contacted: number
@@ -32,34 +32,19 @@ export interface DailyLog {
   demos_done: number
   proposals_sent: number
   deals_closed: number
-  notes?: string
-  created_at: string
-  updated_at: string
-  profile?: Profile
 }
 
 export interface RepSummary {
   rep: Profile
   logs: DailyLog[]
-  totals: {
-    businesses_contacted: number
-    follow_ups: number
-    meetings_booked: number
-    demos_done: number
-    proposals_sent: number
-    deals_closed: number
-  }
+  totals: Record<KpiMetric, number>
   targets: KpiTarget | null
   completion_pct: number
 }
 
 export type KpiMetric =
-  | 'businesses_contacted'
-  | 'follow_ups'
-  | 'meetings_booked'
-  | 'demos_done'
-  | 'proposals_sent'
-  | 'deals_closed'
+  | 'businesses_contacted' | 'follow_ups' | 'meetings_booked'
+  | 'demos_done' | 'proposals_sent' | 'deals_closed'
 
 export const KPI_LABELS: Record<KpiMetric, string> = {
   businesses_contacted: 'Businesses Contacted',
@@ -68,6 +53,15 @@ export const KPI_LABELS: Record<KpiMetric, string> = {
   demos_done: 'Demos Done',
   proposals_sent: 'Proposals Sent',
   deals_closed: 'Deals Closed',
+}
+
+export const KPI_ICONS: Record<KpiMetric, string> = {
+  businesses_contacted: 'building',
+  follow_ups: 'repeat',
+  meetings_booked: 'calendar',
+  demos_done: 'monitor',
+  proposals_sent: 'file',
+  deals_closed: 'handshake',
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
@@ -85,12 +79,8 @@ export type LeadStatus = 'new' | 'contacted' | 'follow_up' | 'negotiation' | 'wo
 export const LEAD_STATUSES: LeadStatus[] = ['new', 'contacted', 'follow_up', 'negotiation', 'won', 'lost']
 
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
-  new: 'New',
-  contacted: 'Contacted',
-  follow_up: 'Follow-up',
-  negotiation: 'Negotiation',
-  won: 'Won',
-  lost: 'Lost',
+  new: 'New', contacted: 'Contacted', follow_up: 'Follow-up',
+  negotiation: 'Negotiation', won: 'Won', lost: 'Lost',
 }
 
 export const LEAD_STATUS_COLORS: Record<LeadStatus, string> = {
@@ -100,6 +90,14 @@ export const LEAD_STATUS_COLORS: Record<LeadStatus, string> = {
   negotiation: 'bg-purple-50 text-purple-700',
   won: 'bg-emerald-50 text-emerald-700',
   lost: 'bg-red-50 text-red-700',
+}
+
+// Which KPI metric each status maps to when reached
+export const STATUS_TO_KPI: Partial<Record<LeadStatus, KpiMetric>> = {
+  contacted: 'businesses_contacted',
+  follow_up: 'follow_ups',
+  negotiation: 'meetings_booked',
+  won: 'deals_closed',
 }
 
 export interface Lead {
@@ -115,7 +113,6 @@ export interface Lead {
   status: LeadStatus
   created_at: string
   updated_at: string
-  profile?: Profile
 }
 
 export interface LeadNote {
@@ -127,11 +124,12 @@ export interface LeadNote {
   created_at: string
 }
 
-export const KPI_ICONS: Record<KpiMetric, string> = {
-  businesses_contacted: 'building',
-  follow_ups: 'repeat',
-  meetings_booked: 'calendar',
-  demos_done: 'monitor',
-  proposals_sent: 'file',
-  deals_closed: 'handshake',
+export interface LeadActivity {
+  id: string
+  lead_id: string
+  rep_id: string
+  activity_type: KpiMetric
+  activity_date: string
+  note?: string
+  created_at: string
 }

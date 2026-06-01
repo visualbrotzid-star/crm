@@ -19,16 +19,19 @@ export default function DashboardPage() {
   useEffect(() => {
     async function load() {
       const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
+
       const weekStart = new Date()
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
-      const { data: logs } = await supabase.from('daily_logs').select('*').gte('log_date', weekStart.toISOString().split('T')[0])
+      const { data: logs } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', weekStart.toISOString().split('T')[0])
       const { data: targets } = await supabase.from('kpi_targets').select('*').eq('period', 'weekly').single()
+
       const sums = (repsData || []).map(rep => {
         const repLogs = (logs || []).filter((l: DailyLog) => l.rep_id === rep.id)
         const totals = sumLogs(repLogs)
         const completion_pct = calcCompletionPct(totals, targets as KpiTarget | null)
         return { rep, logs: repLogs, totals, targets, completion_pct }
       })
+
       setReps(repsData || [])
       setSummaries(sums)
       setTeamMetrics({
@@ -59,12 +62,14 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">Team Overview</h1>
         <p className="text-gray-500 text-sm mt-1">Weekly KPI progress across your sales team</p>
       </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="card p-4"><p className="text-xs text-gray-400 mb-1">Total Reps</p><p className="text-2xl font-bold text-gray-900">{reps.length}</p></div>
         <div className="card p-4"><p className="text-xs text-gray-400 mb-1">On Track</p><p className="text-2xl font-bold text-emerald-600">{onTrack}</p></div>
         <div className="card p-4"><p className="text-xs text-gray-400 mb-1">Behind</p><p className="text-2xl font-bold text-red-500">{behind}</p></div>
         <div className="card p-4"><p className="text-xs text-gray-400 mb-1">Deals Closed (week)</p><p className="text-2xl font-bold text-brand-600">{teamMetrics.deals_closed}</p></div>
       </div>
+
       <div className="card p-6 mb-8">
         <h2 className="font-semibold text-gray-900 mb-4">Team Totals This Week</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
@@ -83,6 +88,7 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
       <h2 className="font-semibold text-gray-900 mb-4">Individual Performance</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {summaries.map(s => <RepRow key={s.rep.id} summary={s} />)}

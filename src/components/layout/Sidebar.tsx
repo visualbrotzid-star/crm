@@ -17,7 +17,6 @@ const NAV_MANAGER = [
 const NAV_REP = [
   { href: '/rep', label: 'My Dashboard' },
   { href: '/rep/leads', label: 'My Leads' },
-  { href: '/rep/log', label: 'Log Activity' },
   { href: '/rep/history', label: 'My History' },
 ]
 
