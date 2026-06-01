@@ -135,6 +135,7 @@ export const translations = {
     'login.subtitle': 'Sign in to your team dashboard',
     'login.signIn': 'Sign In',
     'login.signingIn': 'Signing in...',
+    'login.deactivated': 'Your account has been deactivated. Please contact your administrator.',
     // Rep dashboard
     'rep.myPerformance': 'My Performance',
     'rep.addLead': 'Add a Lead',
@@ -298,6 +299,7 @@ export const translations = {
     'login.subtitle': 'Masuk ke dasbor tim Anda',
     'login.signIn': 'Masuk',
     'login.signingIn': 'Sedang masuk...',
+    'login.deactivated': 'Akun Anda telah dinonaktifkan. Silakan hubungi administrator Anda.',
     // Rep dashboard
     'rep.myPerformance': 'Performa Saya',
     'rep.addLead': 'Tambah Prospek',

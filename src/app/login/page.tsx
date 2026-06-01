@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 
@@ -12,6 +12,13 @@ export default function LoginPage() {
   const supabase = createClient()
   const { t } = useI18n()
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('deactivated') === '1') {
+      setError(t('login.deactivated'))
+    }
+  }, [])
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -22,7 +29,7 @@ export default function LoginPage() {
     if (error) {
       // Banned/deactivated users get a specific auth error
       const msg = /banned|disabled|deactiv/i.test(error.message)
-        ? 'This account has been deactivated. Contact your administrator.'
+        ? t('login.deactivated')
         : error.message
       setError(msg)
       setLoading(false)

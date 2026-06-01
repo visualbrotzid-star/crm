@@ -18,6 +18,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (!session) { window.location.href = '/login'; return }
       const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
       if (!data) { window.location.href = '/login'; return }
+      if (data.active === false) {
+        await supabase.auth.signOut()
+        window.location.href = '/login?deactivated=1'
+        return
+      }
       if (!isManager(data.role)) { window.location.href = '/rep'; return }
       setProfile(data as Profile)
       setLoading(false)
