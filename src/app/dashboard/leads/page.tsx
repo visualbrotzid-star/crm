@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, Profile, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
 
@@ -65,6 +66,7 @@ export default function ManagerLeadsPage() {
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Contact</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Location</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Status</th>
+              <th className="px-6 py-4"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -75,6 +77,7 @@ export default function ManagerLeadsPage() {
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.contact_number || lead.email || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.location || '-'}</td>
                 <td className="px-6 py-4"><span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span></td>
+                <td className="px-6 py-4 text-right"><Link href={`/dashboard/leads/${lead.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium">View</Link></td>
               </tr>
             ))}
           </tbody>
