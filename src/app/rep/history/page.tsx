@@ -49,10 +49,9 @@ export default function HistoryPage() {
             <span>Notes</span>
           </div>
           {logs.map((log: DailyLog) => (
-            <div key={log.id} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
+            <div key={log.log_date} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
               <p className="text-sm font-medium text-gray-900">{format(parseISO(log.log_date), 'MMM d')}</p>
               {METRICS.map(m => <div key={m} className="text-center text-sm font-semibold text-gray-900">{log[m as keyof DailyLog] as number}</div>)}
-              <p className="text-xs text-gray-400 italic truncate">{log.notes || '-'}</p>
             </div>
           ))}
         </div>
