@@ -52,14 +52,13 @@ export default function ReportsPage() {
   const trend = Object.values(dateMap)
 
   function exportCSV() {
-    const rows = [['Rep', 'Date', ...METRICS.map(m => KPI_LABELS[m]), 'Notes']]
+    const rows = [['Rep', 'Date', ...METRICS.map(m => KPI_LABELS[m])]]
     logs.forEach(l => {
       const rep = reps.find(r => r.id === l.rep_id)
       rows.push([
         rep?.full_name || 'Unknown',
         l.log_date,
         ...METRICS.map(m => String(l[m as keyof DailyLog] ?? 0)),
-        l.notes || '',
       ])
     })
     const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
