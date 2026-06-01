@@ -4,26 +4,30 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Profile, ROLE_LABELS, isManager } from '@/types'
+import { Profile, isManager } from '@/types'
+import { useI18n } from '@/lib/i18n/I18nProvider'
+import { TranslationKey } from '@/lib/i18n/translations'
 import ThemeToggle from '@/components/theme/ThemeToggle'
+import LangSwitcher from '@/lib/i18n/LangSwitcher'
 import clsx from 'clsx'
 
-const NAV_MANAGER = [
-  { href: '/dashboard', label: 'Overview' },
-  { href: '/dashboard/leads', label: 'Leads' },
-  { href: '/dashboard/team', label: 'Team' },
-  { href: '/dashboard/targets', label: 'KPI Targets' },
-  { href: '/dashboard/reports', label: 'Reports' },
+const NAV_MANAGER: { href: string; key: TranslationKey; tour: string }[] = [
+  { href: '/dashboard', key: 'nav.overview', tour: 'nav-overview' },
+  { href: '/dashboard/leads', key: 'nav.leads', tour: 'nav-leads' },
+  { href: '/dashboard/team', key: 'nav.team', tour: 'nav-team' },
+  { href: '/dashboard/targets', key: 'nav.targets', tour: 'nav-targets' },
+  { href: '/dashboard/reports', key: 'nav.reports', tour: 'nav-reports' },
 ]
-const NAV_REP = [
-  { href: '/rep', label: 'My Dashboard' },
-  { href: '/rep/leads', label: 'My Leads' },
-  { href: '/rep/history', label: 'My History' },
+const NAV_REP: { href: string; key: TranslationKey; tour: string }[] = [
+  { href: '/rep', key: 'nav.myDashboard', tour: 'nav-myDashboard' },
+  { href: '/rep/leads', key: 'nav.myLeads', tour: 'nav-myLeads' },
+  { href: '/rep/history', key: 'nav.myHistory', tour: 'nav-myHistory' },
 ]
 
 export default function Sidebar({ profile }: { profile: Profile }) {
   const pathname = usePathname()
   const supabase = createClient()
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const nav = isManager(profile.role) ? NAV_MANAGER : NAV_REP
 
@@ -33,6 +37,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
   }
 
   const initials = profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const roleKey = `role.${profile.role}` as TranslationKey
   const badgeStyle = profile.role === 'super_admin' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
     : profile.role === 'team_lead' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
     : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
@@ -46,23 +51,24 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           </div>
           <div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-none">SalesTrack</p>
-            <p className="text-xs text-gray-400 mt-0.5">KPI Dashboard</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('nav.kpiDashboard')}</p>
           </div>
         </div>
       </div>
       <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-800">
-        <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', badgeStyle)}>{ROLE_LABELS[profile.role]}</span>
+        <span className={clsx('text-xs font-medium px-2 py-1 rounded-full', badgeStyle)}>{t(roleKey)}</span>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {nav.map(item => (
-          <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
+          <Link key={item.href} href={item.href} onClick={() => setOpen(false)} data-tour={item.tour}
             className={clsx('flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
               pathname === item.href ? 'bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800')}>
-            {item.label}
+            {t(item.key)}
           </Link>
         ))}
       </nav>
-      <div className="px-3 py-4 border-t border-gray-100 dark:border-gray-800 space-y-1">
+      <div className="px-3 py-4 border-t border-gray-100 dark:border-gray-800 space-y-1" data-tour="lang-switch">
+        <LangSwitcher />
         <ThemeToggle />
         <div className="flex items-center gap-3 px-3 py-2">
           <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs font-semibold flex-shrink-0">{initials}</div>
@@ -71,14 +77,13 @@ export default function Sidebar({ profile }: { profile: Profile }) {
             <p className="text-xs text-gray-400 truncate">{profile.email}</p>
           </div>
         </div>
-        <button onClick={handleSignOut} className="w-full text-left px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">Sign out</button>
+        <button onClick={handleSignOut} className="w-full text-left px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">{t('nav.signOut')}</button>
       </div>
     </>
   )
 
   return (
     <>
-      {/* Mobile top bar */}
       <div className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center">
@@ -91,7 +96,6 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         </button>
       </div>
 
-      {/* Mobile drawer overlay */}
       {open && (
         <div className="md:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setOpen(false)}>
           <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 flex flex-col" onClick={e => e.stopPropagation()}>
@@ -103,7 +107,6 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         </div>
       )}
 
-      {/* Desktop sidebar */}
       <aside className="hidden md:flex w-60 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex-col h-screen sticky top-0">
         {SidebarContent}
       </aside>

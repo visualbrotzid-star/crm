@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Profile, Role, ROLE_LABELS } from '@/types'
 import Link from 'next/link'
 import { format } from 'date-fns'
@@ -17,6 +18,7 @@ export default function TeamPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const supabase = createClient()
+  const { t } = useI18n()
 
   async function authHeaders() {
     const { data: { session } } = await supabase.auth.getSession()
@@ -113,10 +115,10 @@ export default function TeamPage() {
     <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Team Management</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('team.title')}</h1>
           <p className="text-gray-500 text-sm mt-1">{users.length} users</p>
         </div>
-        <button onClick={openCreate} className="btn-primary">+ Add User</button>
+        <button onClick={openCreate} className="btn-primary">{t('team.addUser')}</button>
       </div>
 
       {/* Desktop table */}
@@ -124,10 +126,10 @@ export default function TeamPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100 dark:border-gray-800">
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Name</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Email</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Role</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Last Activity</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('team.name')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.email')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('team.role')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('team.lastActivity')}</th>
               <th className="px-6 py-4"></th>
             </tr>
           </thead>
@@ -208,7 +210,7 @@ export default function TeamPage() {
                 </div>
               )}
               <div>
-                <label className="label">Full Name</label>
+                <label className="label">{t('team.fullName')}</label>
                 <input type="text" className="input" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder="John Doe" />
               </div>
               <div>
@@ -224,7 +226,7 @@ export default function TeamPage() {
               </div>
               {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowModal(false)} className="btn-secondary flex-1">Cancel</button>
+                <button onClick={() => setShowModal(false)} className="btn-secondary flex-1">{t('common.cancel')}</button>
                 <button onClick={handleSave} disabled={saving} className="btn-primary flex-1">{saving ? 'Saving...' : editUser ? 'Save Changes' : 'Create User'}</button>
               </div>
             </div>

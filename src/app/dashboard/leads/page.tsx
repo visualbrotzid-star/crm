@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { Lead, Profile, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
 
 export default function ManagerLeadsPage() {
@@ -11,6 +12,7 @@ export default function ManagerLeadsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<LeadStatus | 'all'>('all')
   const supabase = createClient()
+  const { t } = useI18n()
 
   useEffect(() => {
     async function load() {
@@ -37,7 +39,7 @@ export default function ManagerLeadsPage() {
   return (
     <div className="p-4 md:p-8">
       <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Leads Pipeline</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('leads.title')}</h1>
         <p className="text-gray-500 text-sm mt-1">{leads.length} leads across your team</p>
       </div>
 
@@ -51,7 +53,7 @@ export default function ManagerLeadsPage() {
       </div>
 
       <div className="flex gap-2 mb-4 flex-wrap">
-        <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>All</button>
+        <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>{t('common.all')}</button>
         {LEAD_STATUSES.map(s => (
           <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>{LEAD_STATUS_LABELS[s]}</button>
         ))}
@@ -62,11 +64,11 @@ export default function ManagerLeadsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100 dark:border-gray-800">
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Business</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Rep</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Contact</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Location</th>
-              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Status</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.business')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.rep')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.contact')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.location')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.status')}</th>
               <th className="px-6 py-4"></th>
             </tr>
           </thead>

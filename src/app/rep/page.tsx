@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { DailyLog, KpiTarget, KpiMetric } from '@/types'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
 import KpiCard from '@/components/ui/KpiCard'
@@ -16,6 +17,7 @@ export default function RepDashboard() {
   const [targets, setTargets] = useState<KpiTarget[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const { t } = useI18n()
 
   useEffect(() => {
     async function load() {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { KpiMetric, KPI_LABELS } from '@/types'
 
 const PERIODS = ['daily', 'weekly', 'monthly', 'quarterly'] as const
@@ -22,6 +23,7 @@ export default function TargetsPage() {
   const [saving, setSaving] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
   const supabase = createClient()
+  const { t } = useI18n()
 
   useEffect(() => {
     async function load() {
@@ -69,8 +71,8 @@ export default function TargetsPage() {
   return (
     <div className="p-4 md:p-8">
       <div className="mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">KPI Targets</h1>
-        <p className="text-gray-500 text-sm mt-1">Set performance targets for your team across all time periods</p>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('targets.title')}</h1>
+        <p className="text-gray-500 text-sm mt-1">{t('targets.subtitle')}</p>
       </div>
 
       <div className="space-y-6">

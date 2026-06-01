@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { useTheme } from '@/components/theme/ThemeProvider'
 import { DailyLog, Profile, KpiMetric, KPI_LABELS } from '@/types'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from 'recharts'
@@ -15,6 +16,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true)
   const { theme } = useTheme()
   const supabase = createClient()
+  const { t } = useI18n()
   const dark = theme === 'dark'
   const axisColor = dark ? '#6b7280' : '#9ca3af'
   const gridColor = dark ? '#1f2937' : '#f0f0f0'
@@ -80,10 +82,10 @@ export default function ReportsPage() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6 gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Reports</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Last 30 days performance</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('reports.title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('reports.subtitle')}</p>
         </div>
-        <button onClick={exportCSV} className="btn-primary whitespace-nowrap text-sm">Export CSV</button>
+        <button onClick={exportCSV} className="btn-primary whitespace-nowrap text-sm">{t('common.export')}</button>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
@@ -96,7 +98,7 @@ export default function ReportsPage() {
       </div>
 
       <div className="card p-4 md:p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Performance by Rep</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('reports.perfByRep')}</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={repTotals}>
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
@@ -112,7 +114,7 @@ export default function ReportsPage() {
       </div>
 
       <div className="card p-4 md:p-6">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Daily Team Trend</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('reports.dailyTrend')}</h2>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={trend}>
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />

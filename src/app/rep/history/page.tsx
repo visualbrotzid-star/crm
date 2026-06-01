@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import { DailyLog, KpiMetric } from '@/types'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
@@ -13,6 +14,7 @@ export default function HistoryPage() {
   const [logs, setLogs] = useState<DailyLog[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const { t } = useI18n()
 
   useEffect(() => {
     async function load() {
@@ -31,15 +33,15 @@ export default function HistoryPage() {
     <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Activity History</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('history.title')}</h1>
           <p className="text-gray-500 text-sm mt-1">Last {logs.length} entries</p>
         </div>
         <Link href="/rep/leads" className="btn-primary">Go to Leads</Link>
       </div>
       {!logs.length ? (
         <div className="card p-16 text-center">
-          <p className="font-medium text-gray-700 dark:text-gray-300">No activity yet</p>
-          <p className="text-sm text-gray-400 mt-1">Work your leads to build up activity history</p><Link href="/rep/leads" className="btn-primary mt-4 inline-block">Go to My Leads</Link>
+          <p className="font-medium text-gray-700 dark:text-gray-300">{t('history.noActivity')}</p>
+          <p className="text-sm text-gray-400 mt-1">Work your leads to build up activity history</p><Link href="/rep/leads" className="btn-primary mt-4 inline-block">{t('history.goToLeads')}</Link>
         </div>
       ) : (
         <>

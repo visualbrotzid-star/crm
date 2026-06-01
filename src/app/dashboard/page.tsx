@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { DailyLog, KpiTarget, Profile, KpiMetric } from '@/types'
 import { sumLogs, calcCompletionPct } from '@/lib/kpi'
+import { useI18n } from '@/lib/i18n/I18nProvider'
 import RepRow from '@/components/ui/RepRow'
 import { format } from 'date-fns'
 
@@ -15,6 +16,7 @@ export default function DashboardPage() {
   })
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const { t } = useI18n()
 
   useEffect(() => {
     async function load() {
@@ -48,13 +50,13 @@ export default function DashboardPage() {
   const behind = summaries.filter(s => s.completion_pct < 60).length
   const today = format(new Date(), 'EEEE, MMMM d yyyy')
 
-  if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading dashboard...</div>
+  if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">{t('common.loading')}</div>
 
   const summaryCards = [
-    { label: 'Total Reps', value: reps.length, accent: 'text-gray-900 dark:text-gray-100' },
-    { label: 'On Track', value: onTrack, accent: 'text-emerald-600 dark:text-emerald-400' },
-    { label: 'Behind', value: behind, accent: 'text-red-500 dark:text-red-400' },
-    { label: 'Deals (week)', value: teamMetrics.deals_closed, accent: 'text-brand-600 dark:text-brand-400' },
+    { label: t('dash.totalReps'), value: reps.length, accent: 'text-gray-900 dark:text-gray-100' },
+    { label: t('dash.onTrack'), value: onTrack, accent: 'text-emerald-600 dark:text-emerald-400' },
+    { label: t('dash.behind'), value: behind, accent: 'text-red-500 dark:text-red-400' },
+    { label: t('dash.dealsWeek'), value: teamMetrics.deals_closed, accent: 'text-brand-600 dark:text-brand-400' },
   ]
 
   const teamTotals = [
@@ -70,8 +72,8 @@ export default function DashboardPage() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-6 md:mb-8">
         <p className="text-xs md:text-sm text-gray-400 mb-1">{today}</p>
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Team Overview</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Weekly KPI progress across your sales team</p>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('dash.teamOverview')}</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t('dash.weeklyProgress')}</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
@@ -84,7 +86,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="card p-4 md:p-6 mb-6 md:mb-8">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Team Totals This Week</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('dash.teamTotals')}</h2>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 text-center">
           {teamTotals.map(item => (
             <div key={item.label} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
@@ -95,13 +97,13 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Individual Performance</h2>
+      <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('dash.individualPerf')}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
         {summaries.map(s => <RepRow key={s.rep.id} summary={s} />)}
         {!summaries.length && (
           <div className="col-span-full card p-12 text-center">
-            <p className="font-medium text-gray-700 dark:text-gray-300">No reps yet</p>
-            <p className="text-sm text-gray-400 mt-1">Add reps from the Team page to get started</p>
+            <p className="font-medium text-gray-700 dark:text-gray-300">{t('dash.noReps')}</p>
+            <p className="text-sm text-gray-400 mt-1">{t('dash.noRepsHint')}</p>
           </div>
         )}
       </div>
