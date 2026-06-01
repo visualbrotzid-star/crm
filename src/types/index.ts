@@ -126,3 +126,12 @@ export interface LeadNote {
   status_change?: string
   created_at: string
 }
+
+export const KPI_ICONS: Record<KpiMetric, string> = {
+  businesses_contacted: 'building',
+  follow_ups: 'repeat',
+  meetings_booked: 'calendar',
+  demos_done: 'monitor',
+  proposals_sent: 'file',
+  deals_closed: 'handshake',
+}
