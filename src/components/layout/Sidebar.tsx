@@ -8,6 +8,7 @@ import clsx from 'clsx'
 
 const NAV_MANAGER = [
   { href: '/dashboard', label: 'Overview' },
+  { href: '/dashboard/leads', label: 'Leads' },
   { href: '/dashboard/team', label: 'Team' },
   { href: '/dashboard/targets', label: 'KPI Targets' },
   { href: '/dashboard/reports', label: 'Reports' },
@@ -15,6 +16,7 @@ const NAV_MANAGER = [
 
 const NAV_REP = [
   { href: '/rep', label: 'My Dashboard' },
+  { href: '/rep/leads', label: 'My Leads' },
   { href: '/rep/log', label: 'Log Activity' },
   { href: '/rep/history', label: 'My History' },
 ]

@@ -80,11 +80,49 @@ export function isManager(role?: Role): boolean {
   return role === 'super_admin' || role === 'team_lead'
 }
 
-export const KPI_ICONS: Record<KpiMetric, string> = {
-  businesses_contacted: 'building',
-  follow_ups: 'repeat',
-  meetings_booked: 'calendar',
-  demos_done: 'monitor',
-  proposals_sent: 'file',
-  deals_closed: 'handshake',
+export type LeadStatus = 'new' | 'contacted' | 'follow_up' | 'negotiation' | 'won' | 'lost'
+
+export const LEAD_STATUSES: LeadStatus[] = ['new', 'contacted', 'follow_up', 'negotiation', 'won', 'lost']
+
+export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
+  new: 'New',
+  contacted: 'Contacted',
+  follow_up: 'Follow-up',
+  negotiation: 'Negotiation',
+  won: 'Won',
+  lost: 'Lost',
+}
+
+export const LEAD_STATUS_COLORS: Record<LeadStatus, string> = {
+  new: 'bg-gray-100 text-gray-700',
+  contacted: 'bg-blue-50 text-blue-700',
+  follow_up: 'bg-amber-50 text-amber-700',
+  negotiation: 'bg-purple-50 text-purple-700',
+  won: 'bg-emerald-50 text-emerald-700',
+  lost: 'bg-red-50 text-red-700',
+}
+
+export interface Lead {
+  id: string
+  rep_id: string
+  business_name: string
+  email?: string
+  instagram_id?: string
+  website?: string
+  contact_number?: string
+  location?: string
+  remarks?: string
+  status: LeadStatus
+  created_at: string
+  updated_at: string
+  profile?: Profile
+}
+
+export interface LeadNote {
+  id: string
+  lead_id: string
+  author_id: string
+  note: string
+  status_change?: string
+  created_at: string
 }
