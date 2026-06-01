@@ -46,11 +46,11 @@ export default function RepDashboard() {
   const loggedToday = logs.some((l: DailyLog) => l.log_date === todayStr)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-sm text-gray-400 mb-1">{today}</p>
-          <h1 className="text-2xl font-bold text-gray-900">My Performance</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">My Performance</h1>
           <p className="text-gray-500 text-sm mt-1">Hi {profile?.full_name?.split(' ')[0]} - here is how you are tracking</p>
         </div>
         {!loggedToday ? (
@@ -68,7 +68,7 @@ export default function RepDashboard() {
           return (
             <div key={key} className="card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-gray-900">{label}</h2>
+                <h2 className="font-semibold text-gray-900 dark:text-gray-100">{label}</h2>
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-32 bg-gray-100 rounded-full overflow-hidden">
                     <div className={clsx('h-full rounded-full transition-all', getStatusBg(pct))} style={{ width: `${pct}%` }} />

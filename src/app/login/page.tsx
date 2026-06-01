@@ -24,6 +24,7 @@ export default function LoginPage() {
     }
 
     if (data.session) {
+      // Give the browser a moment to persist the auth cookie, then hard-navigate
       await new Promise(r => setTimeout(r, 400))
       window.location.href = '/dashboard'
     } else {
@@ -33,7 +34,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-blue-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-blue-100 dark:from-gray-950 dark:to-gray-900 px-4">
       <div className="card p-8 w-full max-w-sm">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center">

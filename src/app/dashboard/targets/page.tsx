@@ -67,9 +67,9 @@ export default function TargetsPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">KPI Targets</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">KPI Targets</h1>
         <p className="text-gray-500 text-sm mt-1">Set performance targets for your team across all time periods</p>
       </div>
 

@@ -110,10 +110,10 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Team Management</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Team Management</h1>
           <p className="text-gray-500 text-sm mt-1">{users.length} users</p>
         </div>
         <button onClick={openCreate} className="btn-primary">+ Add User</button>
@@ -164,7 +164,7 @@ export default function TeamPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">{editUser ? 'Edit User' : 'Add New User'}</h2>
             <div className="space-y-4">
               {!editUser && (

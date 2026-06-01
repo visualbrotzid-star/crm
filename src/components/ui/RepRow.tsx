@@ -37,15 +37,15 @@ export default function RepRow({ summary }: { summary: RepSummary }) {
         {/* Mini stats */}
         <div className="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p className="text-sm font-semibold text-gray-900">{totals.businesses_contacted}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totals.businesses_contacted}</p>
             <p className="text-xs text-gray-400">Contacted</p>
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">{totals.meetings_booked}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totals.meetings_booked}</p>
             <p className="text-xs text-gray-400">Meetings</p>
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">{totals.deals_closed}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totals.deals_closed}</p>
             <p className="text-xs text-gray-400">Deals</p>
           </div>
         </div>

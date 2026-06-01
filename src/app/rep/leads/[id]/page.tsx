@@ -85,26 +85,26 @@ export default function LeadDetailPage() {
   if (!lead) return <div className="p-8 text-gray-400 text-sm">Lead not found</div>
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 md:p-8 max-w-3xl">
       <Link href="/rep/leads" className="text-sm text-brand-600 hover:text-brand-800 mb-4 inline-block">&larr; Back to leads</Link>
 
       <div className="card p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">{lead.business_name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{lead.business_name}</h1>
           <span className={`text-sm font-medium px-3 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          {lead.email && <div><span className="text-gray-400">Email:</span> <span className="text-gray-700">{lead.email}</span></div>}
-          {lead.instagram_id && <div><span className="text-gray-400">Instagram:</span> <span className="text-gray-700">{lead.instagram_id}</span></div>}
-          {lead.website && <div><span className="text-gray-400">Website:</span> <span className="text-gray-700">{lead.website}</span></div>}
-          {lead.contact_number && <div><span className="text-gray-400">Phone:</span> <span className="text-gray-700">{lead.contact_number}</span></div>}
-          {lead.location && <div><span className="text-gray-400">Location:</span> <span className="text-gray-700">{lead.location}</span></div>}
+          {lead.email && <div><span className="text-gray-400">Email:</span> <span className="text-gray-700 dark:text-gray-300">{lead.email}</span></div>}
+          {lead.instagram_id && <div><span className="text-gray-400">Instagram:</span> <span className="text-gray-700 dark:text-gray-300">{lead.instagram_id}</span></div>}
+          {lead.website && <div><span className="text-gray-400">Website:</span> <span className="text-gray-700 dark:text-gray-300">{lead.website}</span></div>}
+          {lead.contact_number && <div><span className="text-gray-400">Phone:</span> <span className="text-gray-700 dark:text-gray-300">{lead.contact_number}</span></div>}
+          {lead.location && <div><span className="text-gray-400">Location:</span> <span className="text-gray-700 dark:text-gray-300">{lead.location}</span></div>}
         </div>
         {lead.remarks && <p className="text-sm text-gray-500 mt-3 pt-3 border-t border-gray-100">{lead.remarks}</p>}
       </div>
 
       <div className="card p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-3">Update Status</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Update Status</h2>
         <div className="flex gap-2 flex-wrap">
           {LEAD_STATUSES.map(s => (
             <button key={s} onClick={() => changeStatus(s)} disabled={saving || s === lead.status}
@@ -117,7 +117,7 @@ export default function LeadDetailPage() {
       </div>
 
       <div className="card p-6 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-1">Log an Activity</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Log an Activity</h2>
         <p className="text-xs text-gray-400 mb-3">Log extra actions on this lead (e.g. a demo or proposal) that count toward your KPIs.</p>
         <div className="flex gap-2 flex-wrap">
           {LOGGABLE.map(m => (
@@ -130,7 +130,7 @@ export default function LeadDetailPage() {
       </div>
 
       <div className="card p-6">
-        <h2 className="font-semibold text-gray-900 mb-3">Activity & Notes</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Activity & Notes</h2>
         <div className="flex gap-2 mb-4">
           <input className="input flex-1" value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note..." onKeyDown={e => e.key === 'Enter' && addNote()} />
           <button onClick={addNote} disabled={saving || !newNote.trim()} className="btn-primary">Add</button>
@@ -143,7 +143,7 @@ export default function LeadDetailPage() {
             <div key={item.id} className="flex gap-3 pb-3 border-b border-gray-50 last:border-0">
               <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.kind === 'activity' ? 'bg-emerald-500' : item.status_change ? 'bg-brand-500' : 'bg-gray-300'}`} />
               <div className="flex-1">
-                <p className="text-sm text-gray-700">{item.note}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{item.note}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{format(parseISO(item.ts), 'MMM d, h:mm a')}</p>
               </div>
             </div>

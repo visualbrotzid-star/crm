@@ -28,17 +28,17 @@ export default function HistoryPage() {
   if (loading) return <div className="p-8 text-gray-400 text-sm">Loading...</div>
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Activity History</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Activity History</h1>
           <p className="text-gray-500 text-sm mt-1">Last {logs.length} entries</p>
         </div>
         <Link href="/rep/leads" className="btn-primary">Log Today</Link>
       </div>
       {!logs.length ? (
         <div className="card p-16 text-center">
-          <p className="font-medium text-gray-700">No logs yet</p>
+          <p className="font-medium text-gray-700 dark:text-gray-300">No logs yet</p>
           <Link href="/rep/leads" className="btn-primary mt-4 inline-block">Log today</Link>
         </div>
       ) : (
@@ -50,8 +50,8 @@ export default function HistoryPage() {
           </div>
           {logs.map((log: DailyLog) => (
             <div key={log.log_date} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
-              <p className="text-sm font-medium text-gray-900">{format(parseISO(log.log_date), 'MMM d')}</p>
-              {METRICS.map(m => <div key={m} className="text-center text-sm font-semibold text-gray-900">{log[m as keyof DailyLog] as number}</div>)}
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{format(parseISO(log.log_date), 'MMM d')}</p>
+              {METRICS.map(m => <div key={m} className="text-center text-sm font-semibold text-gray-900 dark:text-gray-100">{log[m as keyof DailyLog] as number}</div>)}
             </div>
           ))}
         </div>

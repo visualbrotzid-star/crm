@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Sidebar from '@/components/layout/Sidebar'
+import PWARegister from '@/components/PWARegister'
 import { Profile, isManager } from '@/types'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +28,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!profile) return null
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
+      <PWARegister />
       <Sidebar profile={profile} />
       <main className="flex-1 overflow-y-auto">{children}</main>
     </div>

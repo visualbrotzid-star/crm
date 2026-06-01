@@ -19,19 +19,16 @@ export default function DashboardPage() {
   useEffect(() => {
     async function load() {
       const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
-
       const weekStart = new Date()
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
       const { data: logs } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', weekStart.toISOString().split('T')[0])
       const { data: targets } = await supabase.from('kpi_targets').select('*').eq('period', 'weekly').single()
-
       const sums = (repsData || []).map(rep => {
         const repLogs = (logs || []).filter((l: DailyLog) => l.rep_id === rep.id)
         const totals = sumLogs(repLogs)
         const completion_pct = calcCompletionPct(totals, targets as KpiTarget | null)
         return { rep, logs: repLogs, totals, targets, completion_pct }
       })
-
       setReps(repsData || [])
       setSummaries(sums)
       setTeamMetrics({
@@ -51,51 +48,60 @@ export default function DashboardPage() {
   const behind = summaries.filter(s => s.completion_pct < 60).length
   const today = format(new Date(), 'EEEE, MMMM d yyyy')
 
-  if (loading) {
-    return <div className="p-8 text-gray-400 text-sm">Loading dashboard...</div>
-  }
+  if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading dashboard...</div>
+
+  const summaryCards = [
+    { label: 'Total Reps', value: reps.length, accent: 'text-gray-900 dark:text-gray-100' },
+    { label: 'On Track', value: onTrack, accent: 'text-emerald-600 dark:text-emerald-400' },
+    { label: 'Behind', value: behind, accent: 'text-red-500 dark:text-red-400' },
+    { label: 'Deals (week)', value: teamMetrics.deals_closed, accent: 'text-brand-600 dark:text-brand-400' },
+  ]
+
+  const teamTotals = [
+    { label: 'Contacted', value: teamMetrics.businesses_contacted },
+    { label: 'Follow-ups', value: teamMetrics.follow_ups },
+    { label: 'Meetings', value: teamMetrics.meetings_booked },
+    { label: 'Demos', value: teamMetrics.demos_done },
+    { label: 'Proposals', value: teamMetrics.proposals_sent },
+    { label: 'Deals', value: teamMetrics.deals_closed },
+  ]
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <p className="text-sm text-gray-400 mb-1">{today}</p>
-        <h1 className="text-2xl font-bold text-gray-900">Team Overview</h1>
-        <p className="text-gray-500 text-sm mt-1">Weekly KPI progress across your sales team</p>
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <p className="text-xs md:text-sm text-gray-400 mb-1">{today}</p>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Team Overview</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Weekly KPI progress across your sales team</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="card p-4"><p className="text-xs text-gray-400 mb-1">Total Reps</p><p className="text-2xl font-bold text-gray-900">{reps.length}</p></div>
-        <div className="card p-4"><p className="text-xs text-gray-400 mb-1">On Track</p><p className="text-2xl font-bold text-emerald-600">{onTrack}</p></div>
-        <div className="card p-4"><p className="text-xs text-gray-400 mb-1">Behind</p><p className="text-2xl font-bold text-red-500">{behind}</p></div>
-        <div className="card p-4"><p className="text-xs text-gray-400 mb-1">Deals Closed (week)</p><p className="text-2xl font-bold text-brand-600">{teamMetrics.deals_closed}</p></div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+        {summaryCards.map(c => (
+          <div key={c.label} className="card p-4">
+            <p className="text-xs text-gray-400 mb-1">{c.label}</p>
+            <p className={`text-2xl md:text-3xl font-bold ${c.accent}`}>{c.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="card p-6 mb-8">
-        <h2 className="font-semibold text-gray-900 mb-4">Team Totals This Week</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
-          {[
-            { label: 'Contacted', value: teamMetrics.businesses_contacted },
-            { label: 'Follow-ups', value: teamMetrics.follow_ups },
-            { label: 'Meetings', value: teamMetrics.meetings_booked },
-            { label: 'Demos', value: teamMetrics.demos_done },
-            { label: 'Proposals', value: teamMetrics.proposals_sent },
-            { label: 'Deals', value: teamMetrics.deals_closed },
-          ].map(item => (
-            <div key={item.label} className="bg-gray-50 rounded-xl p-3">
-              <p className="text-xl font-bold text-gray-900">{item.value}</p>
+      <div className="card p-4 md:p-6 mb-6 md:mb-8">
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Team Totals This Week</h2>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 text-center">
+          {teamTotals.map(item => (
+            <div key={item.label} className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+              <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{item.value}</p>
               <p className="text-xs text-gray-400 mt-1">{item.label}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <h2 className="font-semibold text-gray-900 mb-4">Individual Performance</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Individual Performance</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
         {summaries.map(s => <RepRow key={s.rep.id} summary={s} />)}
         {!summaries.length && (
-          <div className="col-span-3 card p-12 text-center">
-            <p className="font-medium text-gray-700">No reps yet</p>
-            <p className="text-sm text-gray-400 mt-1">Add reps to get started</p>
+          <div className="col-span-full card p-12 text-center">
+            <p className="font-medium text-gray-700 dark:text-gray-300">No reps yet</p>
+            <p className="text-sm text-gray-400 mt-1">Add reps from the Team page to get started</p>
           </div>
         )}
       </div>

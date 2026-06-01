@@ -34,16 +34,16 @@ export default function ManagerLeadsPage() {
   LEAD_STATUSES.forEach(s => { counts[s] = leads.filter(l => l.status === s).length })
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Leads Pipeline</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Leads Pipeline</h1>
         <p className="text-gray-500 text-sm mt-1">{leads.length} leads across your team</p>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
         {LEAD_STATUSES.map(s => (
           <div key={s} className="card p-3 text-center">
-            <p className="text-2xl font-bold text-gray-900">{counts[s]}</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{counts[s]}</p>
             <p className="text-xs text-gray-400 mt-1">{LEAD_STATUS_LABELS[s]}</p>
           </div>
         ))}

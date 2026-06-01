@@ -16,13 +16,13 @@ export default function KpiCard({ metric, actual, target }: Props) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-xl">{KPI_ICONS[metric]}</span>
-          <span className="text-sm font-medium text-gray-700">{KPI_LABELS[metric]}</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{KPI_LABELS[metric]}</span>
         </div>
         <span className="text-xs font-medium text-gray-400">{pct}%</span>
       </div>
 
       <div className="flex items-end gap-1 mb-2">
-        <span className="text-2xl font-bold text-gray-900">{actual}</span>
+        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{actual}</span>
         <span className="text-sm text-gray-400 mb-0.5">/ {target}</span>
       </div>
 

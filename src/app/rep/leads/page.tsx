@@ -44,10 +44,10 @@ export default function RepLeadsPage() {
   LEAD_STATUSES.forEach(s => { counts[s] = leads.filter(l => l.status === s).length })
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Leads</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">My Leads</h1>
           <p className="text-gray-500 text-sm mt-1">{leads.length} total leads in your pipeline</p>
         </div>
         <button onClick={() => setShowModal(true)} className="btn-primary">+ Add Lead</button>
@@ -64,7 +64,7 @@ export default function RepLeadsPage() {
 
       {!filtered.length ? (
         <div className="card p-12 text-center">
-          <p className="font-medium text-gray-700">No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p>
+          <p className="font-medium text-gray-700 dark:text-gray-300">No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p>
           <p className="text-sm text-gray-400 mt-1">Add your first lead to start tracking</p>
         </div>
       ) : (
@@ -72,7 +72,7 @@ export default function RepLeadsPage() {
           {filtered.map(lead => (
             <Link key={lead.id} href={`/rep/leads/${lead.id}`} className="card p-5 hover:border-brand-200 hover:shadow-md transition-all">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-gray-900">{lead.business_name}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{lead.business_name}</h3>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span>
               </div>
               {lead.location && <p className="text-sm text-gray-500">{lead.location}</p>}
@@ -85,7 +85,7 @@ export default function RepLeadsPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Add New Lead</h2>
             <div className="space-y-3">
               <div><label className="label">Business Name *</label><input className="input" value={form.business_name} onChange={e => setForm({ ...form, business_name: e.target.value })} placeholder="Filli Cafe" /></div>
