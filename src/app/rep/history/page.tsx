@@ -34,12 +34,12 @@ export default function HistoryPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Activity History</h1>
           <p className="text-gray-500 text-sm mt-1">Last {logs.length} entries</p>
         </div>
-        <Link href="/rep/leads" className="btn-primary">Log Today</Link>
+        <Link href="/rep/leads" className="btn-primary">Go to Leads</Link>
       </div>
       {!logs.length ? (
         <div className="card p-16 text-center">
-          <p className="font-medium text-gray-700 dark:text-gray-300">No logs yet</p>
-          <Link href="/rep/leads" className="btn-primary mt-4 inline-block">Log today</Link>
+          <p className="font-medium text-gray-700 dark:text-gray-300">No activity yet</p>
+          <p className="text-sm text-gray-400 mt-1">Work your leads to build up activity history</p><Link href="/rep/leads" className="btn-primary mt-4 inline-block">Go to My Leads</Link>
         </div>
       ) : (
         <div className="card overflow-hidden">

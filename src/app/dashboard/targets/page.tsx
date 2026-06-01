@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { KpiMetric, KPI_LABELS, KPI_ICONS } from '@/types'
+import { KpiMetric, KPI_LABELS } from '@/types'
 
 const PERIODS = ['daily', 'weekly', 'monthly', 'quarterly'] as const
 const METRICS: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
@@ -91,10 +91,7 @@ export default function TargetsPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {METRICS.map(m => (
                 <div key={m}>
-                  <label className="label flex items-center gap-1">
-                    <span>{KPI_ICONS[m]}</span>
-                    <span>{KPI_LABELS[m]}</span>
-                  </label>
+                  <label className="label">{KPI_LABELS[m]}</label>
                   <input
                     type="number"
                     min="0"
