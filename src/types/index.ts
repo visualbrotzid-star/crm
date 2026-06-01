@@ -1,4 +1,4 @@
-export type Role = 'manager' | 'rep'
+export type Role = 'super_admin' | 'team_lead' | 'rep'
 
 export interface Profile {
   id: string
@@ -70,11 +70,12 @@ export const KPI_LABELS: Record<KpiMetric, string> = {
   deals_closed: 'Deals Closed',
 }
 
-export const KPI_ICONS: Record<KpiMetric, string> = {
-  businesses_contacted: '🏢',
-  follow_ups: '🔁',
-  meetings_booked: '📅',
-  demos_done: '💻',
-  proposals_sent: '📄',
-  deals_closed: '🤝',
+export const ROLE_LABELS: Record<Role, string> = {
+  super_admin: 'Super Admin',
+  team_lead: 'Team Lead',
+  rep: 'Sales Rep',
+}
+
+export function isManager(role?: Role): boolean {
+  return role === 'super_admin' || role === 'team_lead'
 }

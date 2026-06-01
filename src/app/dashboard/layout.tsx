@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Sidebar from '@/components/layout/Sidebar'
-import { Profile } from '@/types'
+import { Profile, isManager } from '@/types'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -13,38 +13,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        window.location.href = '/login'
-        return
-      }
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      if (!data) {
-        window.location.href = '/login'
-        return
-      }
-      if (data.role === 'rep') {
-        window.location.href = '/rep'
-        return
-      }
+      if (!session) { window.location.href = '/login'; return }
+      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+      if (!data) { window.location.href = '/login'; return }
+      if (!isManager(data.role)) { window.location.href = '/rep'; return }
       setProfile(data as Profile)
       setLoading(false)
     }
     load()
   }, [])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Loading...</div>
-      </div>
-    )
-  }
-
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-gray-400 text-sm">Loading...</div></div>
   if (!profile) return null
 
   return (
