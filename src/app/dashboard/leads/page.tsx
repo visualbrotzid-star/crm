@@ -57,10 +57,11 @@ export default function ManagerLeadsPage() {
         ))}
       </div>
 
-      <div className="card overflow-hidden">
+      {/* Desktop table */}
+      <div className="card overflow-hidden hidden md:block">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-gray-100 dark:border-gray-800">
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Business</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Rep</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Contact</th>
@@ -69,7 +70,7 @@ export default function ManagerLeadsPage() {
               <th className="px-6 py-4"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
             {filtered.map(lead => (
               <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100 text-sm">{lead.business_name}</td>
@@ -83,6 +84,24 @@ export default function ManagerLeadsPage() {
           </tbody>
         </table>
         {!filtered.length && <div className="text-center py-12 text-gray-400"><p>No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p></div>}
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {filtered.map(lead => (
+          <Link key={lead.id} href={`/dashboard/leads/${lead.id}`} className="card p-4 block">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{lead.business_name}</p>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${LEAD_STATUS_COLORS[lead.status]}`}>{LEAD_STATUS_LABELS[lead.status]}</span>
+            </div>
+            <div className="text-xs text-gray-500 space-y-0.5">
+              <p>Rep: {reps[lead.rep_id]?.full_name || '-'}</p>
+              {(lead.contact_number || lead.email) && <p>{lead.contact_number || lead.email}</p>}
+              {lead.location && <p>{lead.location}</p>}
+            </div>
+          </Link>
+        ))}
+        {!filtered.length && <div className="card text-center py-12 text-gray-400"><p>No leads {filter !== 'all' ? `in ${LEAD_STATUS_LABELS[filter as LeadStatus]}` : 'yet'}</p></div>}
       </div>
     </div>
   )

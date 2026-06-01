@@ -119,10 +119,11 @@ export default function TeamPage() {
         <button onClick={openCreate} className="btn-primary">+ Add User</button>
       </div>
 
-      <div className="card overflow-hidden">
+      {/* Desktop table */}
+      <div className="card overflow-hidden hidden md:block">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100">
+            <tr className="border-b border-gray-100 dark:border-gray-800">
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Name</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Email</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Role</th>
@@ -130,7 +131,7 @@ export default function TeamPage() {
               <th className="px-6 py-4"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
             {users.map((u: Profile) => {
               const lastLog = lastLogMap[u.id]
               const initials = u.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -139,7 +140,7 @@ export default function TeamPage() {
                 <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-semibold">{initials}</div>
+                      <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-sm font-semibold">{initials}</div>
                       <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{u.full_name}</span>
                     </div>
                   </td>
@@ -147,10 +148,10 @@ export default function TeamPage() {
                   <td className="px-6 py-4">{roleBadge(u.role)}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{u.role === 'rep' ? (lastLog ? format(new Date(lastLog), 'MMM d') : 'Never') : '-'}</td>
                   <td className="px-6 py-4 text-right whitespace-nowrap">
-                    {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 hover:text-brand-800 font-medium mr-4">View</Link>}
+                    {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium mr-4">View</Link>}
                     {canManage && u.role !== 'super_admin' && (
                       <>
-                        <button onClick={() => openEdit(u)} className="text-sm text-gray-500 hover:text-gray-800 font-medium mr-4">Edit</button>
+                        <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium mr-4">Edit</button>
                         <button onClick={() => handleDelete(u)} className="text-sm text-red-500 hover:text-red-700 font-medium">Delete</button>
                       </>
                     )}
@@ -160,6 +161,39 @@ export default function TeamPage() {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {users.map((u: Profile) => {
+          const lastLog = lastLogMap[u.id]
+          const initials = u.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+          const canManage = isSuperAdmin || (me?.role === 'team_lead' && u.role === 'rep')
+          return (
+            <div key={u.id} className="card p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 flex items-center justify-center text-sm font-semibold flex-shrink-0">{initials}</div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{u.full_name}</p>
+                  <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                </div>
+                {roleBadge(u.role)}
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                <span className="text-xs text-gray-400">{u.role === 'rep' ? (lastLog ? `Active ${format(new Date(lastLog), 'MMM d')}` : 'No activity') : ''}</span>
+                <div className="flex items-center gap-3">
+                  {u.role === 'rep' && <Link href={`/dashboard/rep/${u.id}`} className="text-sm text-brand-600 dark:text-brand-400 font-medium">View</Link>}
+                  {canManage && u.role !== 'super_admin' && (
+                    <>
+                      <button onClick={() => openEdit(u)} className="text-sm text-gray-500 dark:text-gray-400 font-medium">Edit</button>
+                      <button onClick={() => handleDelete(u)} className="text-sm text-red-500 font-medium">Delete</button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {showModal && (

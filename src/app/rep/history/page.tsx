@@ -42,19 +42,38 @@ export default function HistoryPage() {
           <p className="text-sm text-gray-400 mt-1">Work your leads to build up activity history</p><Link href="/rep/leads" className="btn-primary mt-4 inline-block">Go to My Leads</Link>
         </div>
       ) : (
-        <div className="card overflow-hidden">
-          <div className="grid gap-2 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-400 uppercase" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
-            <span>Date</span>
-            {LABELS.map(l => <span key={l} className="text-center">{l}</span>)}
-            <span>Notes</span>
-          </div>
-          {logs.map((log: DailyLog) => (
-            <div key={log.log_date} className="grid gap-2 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr) 1.5fr' }}>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{format(parseISO(log.log_date), 'MMM d')}</p>
-              {METRICS.map(m => <div key={m} className="text-center text-sm font-semibold text-gray-900 dark:text-gray-100">{log[m as keyof DailyLog] as number}</div>)}
+        <>
+          {/* Desktop grid */}
+          <div className="card overflow-hidden hidden md:block">
+            <div className="grid gap-2 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-400 uppercase" style={{ gridTemplateColumns: '120px repeat(6, 1fr)' }}>
+              <span>Date</span>
+              {LABELS.map(l => <span key={l} className="text-center">{l}</span>)}
             </div>
-          ))}
-        </div>
+            {logs.map((log: DailyLog) => (
+              <div key={log.log_date} className="grid gap-2 px-6 py-4 border-b border-gray-50 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800 items-center" style={{ gridTemplateColumns: '120px repeat(6, 1fr)' }}>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{format(parseISO(log.log_date), 'MMM d')}</p>
+                {METRICS.map(m => <div key={m} className="text-center text-sm font-semibold text-gray-900 dark:text-gray-100">{log[m as keyof DailyLog] as number}</div>)}
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {logs.map((log: DailyLog) => (
+              <div key={log.log_date} className="card p-4">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">{format(parseISO(log.log_date), 'EEEE, MMM d')}</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {METRICS.map((m, i) => (
+                    <div key={m} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{log[m as keyof DailyLog] as number}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 leading-tight">{LABELS[i]}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
