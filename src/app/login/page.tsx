@@ -49,12 +49,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-blue-100 dark:from-gray-950 dark:to-gray-900 px-4">
       <div className="card p-8 w-full max-w-sm">
-        <div className="flex items-center gap-3 mb-8">
-          <img src="/icon-192.png" alt="Visualbrotz" className="w-10 h-10 rounded-xl object-cover" />
-          <div>
-            <p className="font-bold text-gray-900 dark:text-gray-100 text-base">Visualbrotz</p>
-            <p className="text-xs text-gray-400">{t('nav.kpiDashboard')}</p>
-          </div>
+        <div className="mb-8">
+          <p className="font-bold text-gray-900 dark:text-gray-100 text-2xl">Visualbrotz</p>
+          <p className="text-xs text-gray-400 mt-1">{t('nav.kpiDashboard')}</p>
         </div>
         <h1 className="text-xl font-semibold text-gray-900 mb-1">{t('login.welcome')}</h1>
         <p className="text-sm text-gray-500 mb-6">{t('login.subtitle')}</p>
