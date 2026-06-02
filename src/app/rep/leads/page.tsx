@@ -13,6 +13,8 @@ export default function RepLeadsPage() {
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ business_name: '', email: '', instagram_id: '', website: '', contact_number: '', location: '', remarks: '' })
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const supabase = createClient()
   const L = useLabels()
   const { t } = useI18n()
@@ -26,6 +28,17 @@ export default function RepLeadsPage() {
   }
 
   useEffect(() => { load() }, [])
+
+  async function handleDelete(leadId: string) {
+    setDeleting(true)
+    await supabase.from('lead_notes').delete().eq('lead_id', leadId)
+    await supabase.from('lead_activities').delete().eq('lead_id', leadId)
+    await supabase.from('leads').delete().eq('id', leadId)
+    setConfirmDeleteId(null)
+    setDeleting(false)
+    setLoading(true)
+    await load()
+  }
 
   async function handleCreate() {
     if (!form.business_name.trim()) return
@@ -73,16 +86,44 @@ export default function RepLeadsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(lead => (
-            <Link key={lead.id} href={`/rep/leads/${lead.id}`} className="card p-5 hover:border-brand-200 hover:shadow-md transition-all">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{lead.business_name}</h3>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span>
-              </div>
-              {lead.location && <p className="text-sm text-gray-500">{lead.location}</p>}
-              {lead.contact_number && <p className="text-sm text-gray-400 mt-1">{lead.contact_number}</p>}
-              {lead.remarks && <p className="text-xs text-gray-400 mt-2 line-clamp-2">{lead.remarks}</p>}
-            </Link>
+            <div key={lead.id} className="card p-5 hover:border-brand-200 hover:shadow-md transition-all relative group">
+              <Link href={`/rep/leads/${lead.id}`} className="block">
+                <div className="flex items-start justify-between mb-2 pr-6">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{lead.business_name}</h3>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span>
+                </div>
+                {lead.location && <p className="text-sm text-gray-500">{lead.location}</p>}
+                {lead.contact_number && <p className="text-sm text-gray-400 mt-1">{lead.contact_number}</p>}
+                {lead.remarks && <p className="text-xs text-gray-400 mt-2 line-clamp-2">{lead.remarks}</p>}
+              </Link>
+              <button
+                onClick={e => { e.stopPropagation(); setConfirmDeleteId(lead.id) }}
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all"
+                title="Delete lead"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+              </button>
+            </div>
           ))}
+        </div>
+      )}
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setConfirmDeleteId(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Delete Lead?</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+              This will permanently delete <span className="font-medium text-gray-700 dark:text-gray-300">{leads.find(l => l.id === confirmDeleteId)?.business_name}</span> and all its notes and activities. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDeleteId(null)} className="btn-secondary flex-1">Cancel</button>
+              <button onClick={() => handleDelete(confirmDeleteId)} disabled={deleting} className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-50">
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
