@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, LeadNote, LeadActivity, Profile, KPI_LABELS, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
@@ -11,12 +11,15 @@ import clsx from 'clsx'
 
 export default function ManagerLeadDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
   const [lead, setLead] = useState<Lead | null>(null)
   const [rep, setRep] = useState<Profile | null>(null)
   const [notes, setNotes] = useState<LeadNote[]>([])
   const [activities, setActivities] = useState<LeadActivity[]>([])
   const [loading, setLoading] = useState(true)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const supabase = createClient()
   const { t } = useI18n()
   const L = useLabels()
@@ -40,6 +43,14 @@ export default function ManagerLeadDetailPage() {
     load()
   }, [id])
 
+  async function handleDelete() {
+    setDeleting(true)
+    await supabase.from('lead_notes').delete().eq('lead_id', id)
+    await supabase.from('lead_activities').delete().eq('lead_id', id)
+    await supabase.from('leads').delete().eq('id', id)
+    router.push('/dashboard/leads')
+  }
+
   if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading...</div>
   if (!lead) return <div className="p-4 md:p-8 text-gray-400 text-sm">{t('leads.leadNotFound')}</div>
 
@@ -51,7 +62,15 @@ export default function ManagerLeadDetailPage() {
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
-      <Link href="/dashboard/leads" className="text-sm text-brand-600 dark:text-brand-400 hover:underline mb-4 inline-block">&larr; Back to leads</Link>
+      <div className="flex items-center justify-between mb-4">
+        <Link href="/dashboard/leads" className="text-sm text-brand-600 dark:text-brand-400 hover:underline">&larr; Back to leads</Link>
+        <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          Delete Lead
+        </button>
+      </div>
 
       <div className="card p-4 md:p-6 mb-6">
         <div className="flex items-start justify-between mb-4 gap-3">
@@ -89,6 +108,22 @@ export default function ManagerLeadDetailPage() {
           </div>
         )}
       </div>
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Delete Lead?</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+              This will permanently delete <span className="font-medium text-gray-700 dark:text-gray-300">{lead.business_name}</span> and all its notes and activities. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDeleteConfirm(false)} className="btn-secondary flex-1">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-50">
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
