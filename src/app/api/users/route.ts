@@ -48,9 +48,6 @@ export async function DELETE(request: Request) {
   const admin = createAdminClient()
   const { data: target } = await admin.from('profiles').select('role').eq('id', id).single()
   if (target?.role === 'super_admin') return NextResponse.json({ error: 'Cannot delete Super Admin' }, { status: 403 })
-  if (target?.role === 'team_lead' && role !== 'super_admin') {
-    return NextResponse.json({ error: 'Only Super Admin can delete Team Leads' }, { status: 403 })
-  }
   const { error } = await admin.auth.admin.deleteUser(id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ success: true })

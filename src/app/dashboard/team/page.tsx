@@ -156,7 +156,7 @@ export default function TeamPage() {
             {users.map((u: Profile) => {
               const lastLog = lastLogMap[u.id]
               const initials = u.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-              const canManage = isSuperAdmin || (me?.role === 'team_lead' && u.role === 'rep')
+              const canManage = (isSuperAdmin || me?.role === 'team_lead') && u.role !== 'super_admin' && u.id !== me?.id
               return (
                 <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4">
