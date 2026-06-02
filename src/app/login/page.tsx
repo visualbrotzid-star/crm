@@ -49,14 +49,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-blue-100 dark:from-gray-950 dark:to-gray-900 px-4">
       <div className="card p-8 w-full max-w-sm">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
+        <div className="flex items-center gap-3 mb-8">
+          <img src="/icon-192.png" alt="Visualbrotz" className="w-10 h-10 rounded-xl object-cover" />
           <div>
-            <p className="font-semibold text-gray-900 text-sm">SalesTrack</p>
+            <p className="font-bold text-gray-900 dark:text-gray-100 text-base">Visualbrotz</p>
             <p className="text-xs text-gray-400">{t('nav.kpiDashboard')}</p>
           </div>
         </div>
