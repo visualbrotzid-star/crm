@@ -75,17 +75,18 @@ export function isManager(role?: Role): boolean {
   return role === 'super_admin' || role === 'team_lead'
 }
 
-export type LeadStatus = 'new' | 'contacted' | 'follow_up' | 'negotiation' | 'won' | 'lost'
+export type LeadStatus = 'new' | 'reviewed' | 'contacted' | 'follow_up' | 'negotiation' | 'won' | 'lost'
 
-export const LEAD_STATUSES: LeadStatus[] = ['new', 'contacted', 'follow_up', 'negotiation', 'won', 'lost']
+export const LEAD_STATUSES: LeadStatus[] = ['new', 'reviewed', 'contacted', 'follow_up', 'negotiation', 'won', 'lost']
 
 export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
-  new: 'New', contacted: 'Contacted', follow_up: 'Follow-up',
+  new: 'New', reviewed: 'Ditinjau', contacted: 'Contacted', follow_up: 'Follow-up',
   negotiation: 'Negotiation', won: 'Won', lost: 'Lost',
 }
 
 export const LEAD_STATUS_COLORS: Record<LeadStatus, string> = {
   new: 'bg-gray-100 text-gray-700',
+  reviewed: 'bg-teal-50 text-teal-700',
   contacted: 'bg-blue-50 text-blue-700',
   follow_up: 'bg-amber-50 text-amber-700',
   negotiation: 'bg-purple-50 text-purple-700',
