@@ -15,7 +15,7 @@ interface DayActivity {
   activity_type: KpiMetric
   note: string | null
   activity_date: string
-  leads: { business_name: string } | null
+  leads: { business_name: string }[] | null
 }
 
 export default function HistoryPage() {
@@ -59,7 +59,7 @@ export default function HistoryPage() {
       .eq('rep_id', session.user.id)
       .eq('activity_date', log.log_date)
       .order('created_at', { ascending: true })
-    setDayActivities((data || []) as DayActivity[])
+    setDayActivities((data || []) as unknown as DayActivity[])
     setLoadingDay(false)
   }
 
@@ -179,7 +179,7 @@ export default function HistoryPage() {
                       <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {act.leads?.business_name || 'Unknown lead'}
+                          {act.leads?.[0]?.business_name || 'Unknown lead'}
                         </p>
                         <p className="text-xs text-gray-500 mt-0.5">{act.note || act.activity_type.replace(/_/g, ' ')}</p>
                       </div>
