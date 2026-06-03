@@ -6,6 +6,7 @@ import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { DailyLog, KpiTarget, KpiMetric } from '@/types'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
 import KpiCard from '@/components/ui/KpiCard'
+import GreetingBanner from '@/components/ui/GreetingBanner'
 import { format } from 'date-fns'
 import clsx from 'clsx'
 
@@ -17,7 +18,7 @@ export default function RepDashboard() {
   const [targets, setTargets] = useState<KpiTarget[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const L = useLabels()
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function RepDashboard() {
 
   return (
     <div className="p-4 md:p-8">
+      {profile && <GreetingBanner name={profile.full_name?.split(' ')[0] || profile.full_name} lang={lang} />}
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-sm text-gray-400 mb-1">{today}</p>

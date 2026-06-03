@@ -15,7 +15,8 @@ interface DayActivity {
   activity_type: KpiMetric
   note: string | null
   activity_date: string
-  leads: { business_name: string }[] | null
+  lead_id: string
+  business_name: string
 }
 
 export default function HistoryPage() {
@@ -53,13 +54,22 @@ export default function HistoryPage() {
     setLoadingDay(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
-    const { data } = await supabase
+
+    const { data: actData } = await supabase
       .from('lead_activities')
-      .select('id, activity_type, note, activity_date, leads(business_name)')
+      .select('id, activity_type, note, activity_date, lead_id')
       .eq('rep_id', session.user.id)
       .eq('activity_date', log.log_date)
       .order('created_at', { ascending: true })
-    setDayActivities((data || []) as unknown as DayActivity[])
+
+    const leadIds = [...new Set((actData || []).map((a: any) => a.lead_id))]
+    const leadMap: Record<string, string> = {}
+    if (leadIds.length > 0) {
+      const { data: leadsData } = await supabase.from('leads').select('id, business_name').in('id', leadIds)
+      ;(leadsData || []).forEach((l: any) => { leadMap[l.id] = l.business_name })
+    }
+
+    setDayActivities((actData || []).map((a: any) => ({ ...a, business_name: leadMap[a.lead_id] || 'Unknown lead' })))
     setLoadingDay(false)
   }
 
@@ -179,7 +189,7 @@ export default function HistoryPage() {
                       <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {act.leads?.[0]?.business_name || 'Unknown lead'}
+                          {act.business_name}
                         </p>
                         <p className="text-xs text-gray-500 mt-0.5">{act.note || act.activity_type.replace(/_/g, ' ')}</p>
                       </div>

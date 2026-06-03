@@ -6,6 +6,7 @@ import { DailyLog, KpiTarget, Profile, KpiMetric } from '@/types'
 import { sumLogs, calcCompletionPct } from '@/lib/kpi'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import RepRow from '@/components/ui/RepRow'
+import GreetingBanner from '@/components/ui/GreetingBanner'
 import { format } from 'date-fns'
 
 export default function DashboardPage() {
@@ -15,11 +16,17 @@ export default function DashboardPage() {
     businesses_contacted: 0, follow_ups: 0, meetings_booked: 0, demos_done: 0, proposals_sent: 0, deals_closed: 0,
   })
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const supabase = createClient()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
 
   useEffect(() => {
     async function load() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        const { data: me } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        setProfile(me)
+      }
       const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
       const weekStart = new Date()
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
@@ -70,6 +77,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
+      {profile && <GreetingBanner name={profile.full_name?.split(' ')[0] || profile.full_name} lang={lang} />}
       <div className="mb-6 md:mb-8">
         <p className="text-xs md:text-sm text-gray-400 mb-1">{today}</p>
         <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('dash.teamOverview')}</h1>
