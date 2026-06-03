@@ -62,7 +62,7 @@ export default function HistoryPage() {
       .eq('activity_date', log.log_date)
       .order('created_at', { ascending: true })
 
-    const leadIds = [...new Set((actData || []).map((a: any) => a.lead_id))]
+    const leadIds = Array.from(new Set((actData || []).map((a: any) => a.lead_id)))
     const leadMap: Record<string, string> = {}
     if (leadIds.length > 0) {
       const { data: leadsData } = await supabase.from('leads').select('id, business_name').in('id', leadIds)
