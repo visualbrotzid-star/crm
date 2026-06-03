@@ -13,6 +13,7 @@ export default function RepLeadsPage() {
   const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ business_name: '', email: '', instagram_id: '', website: '', contact_number: '', location: '', remarks: '' })
+  const [search, setSearch] = useState('')
   const supabase = createClient()
   const L = useLabels()
   const { t } = useI18n()
@@ -28,7 +29,7 @@ export default function RepLeadsPage() {
   useEffect(() => { load() }, [])
 
   async function handleCreate() {
-    if (!form.business_name.trim()) return
+    if (!form.business_name.trim() || !form.instagram_id.trim() || !form.contact_number.trim() || !form.location.trim()) return
     setSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
@@ -42,7 +43,8 @@ export default function RepLeadsPage() {
 
   if (loading) return <div className="p-8 text-gray-400 text-sm">Loading...</div>
 
-  const filtered = filter === 'all' ? leads : leads.filter(l => l.status === filter)
+  const byStatus = filter === 'all' ? leads : leads.filter(l => l.status === filter)
+  const filtered = search.trim() ? byStatus.filter(l => l.business_name.toLowerCase().includes(search.toLowerCase())) : byStatus
   const counts: Record<string, number> = { all: leads.length }
   LEAD_STATUSES.forEach(s => { counts[s] = leads.filter(l => l.status === s).length })
 
@@ -56,13 +58,18 @@ export default function RepLeadsPage() {
         <button onClick={() => setShowModal(true)} className="btn-primary">{t('leads.addLead')}</button>
       </div>
 
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <div className="flex gap-2 mb-3 flex-wrap">
         <button onClick={() => setFilter('all')} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>All ({counts.all})</button>
         {LEAD_STATUSES.map(s => (
           <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter === s ? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>
             {L.status(s)} ({counts[s]})
           </button>
         ))}
+      </div>
+
+      <div className="relative mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input className="input pl-9" placeholder="Search by business name..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       {!filtered.length ? (
@@ -93,14 +100,14 @@ export default function RepLeadsPage() {
             <div className="space-y-3">
               <div><label className="label">{t('leads.businessName')} *</label><input className="input" value={form.business_name} onChange={e => setForm({ ...form, business_name: e.target.value })} placeholder={t('ph.businessName')} /></div>
               <div><label className="label">{t('leads.email')}</label><input className="input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder={t('ph.contactEmail')} /></div>
-              <div><label className="label">{t('leads.instagram')}</label><input className="input" value={form.instagram_id} onChange={e => setForm({ ...form, instagram_id: e.target.value })} placeholder={t('ph.instagram')} /></div>
+              <div><label className="label">{t('leads.instagram')} *</label><input className="input" value={form.instagram_id} onChange={e => setForm({ ...form, instagram_id: e.target.value })} placeholder={t('ph.instagram')} /></div>
               <div><label className="label">{t('leads.website')}</label><input className="input" value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder={t('ph.website')} /></div>
-              <div><label className="label">{t('leads.contactNumber')}</label><input className="input" value={form.contact_number} onChange={e => setForm({ ...form, contact_number: e.target.value })} placeholder={t('ph.phone')} /></div>
-              <div><label className="label">{t('leads.location')}</label><input className="input" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder={t('ph.location')} /></div>
+              <div><label className="label">{t('leads.contactNumber')} *</label><input className="input" value={form.contact_number} onChange={e => setForm({ ...form, contact_number: e.target.value })} placeholder={t('ph.phone')} /></div>
+              <div><label className="label">{t('leads.location')} *</label><input className="input" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder={t('ph.location')} /></div>
               <div><label className="label">{t('leads.remarks')}</label><textarea className="input resize-none" rows={2} value={form.remarks} onChange={e => setForm({ ...form, remarks: e.target.value })} placeholder={t('ph.remarks')} /></div>
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowModal(false)} className="btn-secondary flex-1">{t('common.cancel')}</button>
-                <button onClick={handleCreate} disabled={saving || !form.business_name.trim()} className="btn-primary flex-1">{saving ? 'Saving...' : 'Add Lead'}</button>
+                <button onClick={handleCreate} disabled={saving || !form.business_name.trim() || !form.instagram_id.trim() || !form.contact_number.trim() || !form.location.trim()} className="btn-primary flex-1">{saving ? 'Saving...' : 'Add Lead'}</button>
               </div>
             </div>
           </div>

@@ -82,6 +82,7 @@ export const translations = {
     'leads.statusHint': 'Status changes are dated and automatically count toward your KPIs.',
     // Lead statuses
     'status.new': 'New',
+    'status.reviewed': 'Ditinjau',
     'status.contacted': 'Contacted',
     'status.follow_up': 'Follow-up',
     'status.negotiation': 'Negotiation',
@@ -246,6 +247,7 @@ export const translations = {
     'leads.statusHint': 'Perubahan status dicatat dengan tanggal dan otomatis dihitung ke KPI Anda.',
     // Lead statuses
     'status.new': 'Baru',
+    'status.reviewed': 'Ditinjau',
     'status.contacted': 'Dihubungi',
     'status.follow_up': 'Tindak Lanjut',
     'status.negotiation': 'Negosiasi',
