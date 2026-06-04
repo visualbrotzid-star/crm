@@ -85,6 +85,7 @@ export default function RepDetailPage() {
 
   const getTarget = (period: string) => targets.find((t: KpiTarget) => t.period === period) as KpiTarget | null
   const periods = ['daily', 'weekly', 'monthly', 'quarterly'] as const
+  const periodsWithClientDrilldown = ['daily', 'weekly', 'monthly']
   const initials = rep.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
   const weeklyLogs = filterLogsByPeriod(logs, 'weekly')
   const weeklyPct = calcCompletionPct(sumLogs(weeklyLogs), getTarget('weekly'))
@@ -124,13 +125,15 @@ export default function RepDetailPage() {
                   </div>
                   <span className={clsx('text-sm font-semibold', getStatusColor(pct))}>{pct}%</span>
                 </div>
-                <button
-                  onClick={() => openPeriodDetail(period)}
-                  className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
-                >
-                  Lihat Client
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
-                </button>
+                {periodsWithClientDrilldown.includes(period) && (
+                  <button
+                    onClick={() => openPeriodDetail(period)}
+                    className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+                  >
+                    Lihat Client
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">

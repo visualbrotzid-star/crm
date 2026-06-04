@@ -71,16 +71,46 @@ export default function GreetingBanner({ name, lang = 'en' }: Props) {
   if (!visible) return null
 
   return (
-    <div className="mb-6 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 dark:from-brand-700 dark:to-brand-900 p-4 md:p-5 text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 50%, white 0%, transparent 60%)' }} />
-      <div className="relative flex items-start justify-between gap-3">
-        <div>
-          <p className="text-lg md:text-xl font-bold mb-1">{content.greeting}</p>
-          <p className="text-sm text-brand-100 leading-relaxed">{content.quote}</p>
-        </div>
-        <button onClick={dismiss} className="flex-shrink-0 p-1 rounded-lg hover:bg-white/20 transition-colors text-white/70 hover:text-white mt-0.5">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={dismiss}>
+      <div
+        className="relative bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 rounded-3xl p-8 max-w-sm w-full text-white text-center shadow-2xl overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Decorative blobs */}
+        <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full pointer-events-none" />
+        <div className="absolute -bottom-8 -left-8 w-28 h-28 bg-white/10 rounded-full pointer-events-none" />
+
+        {/* Close button */}
+        <button
+          onClick={dismiss}
+          className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white/60 hover:text-white"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
         </button>
+
+        {/* Icon */}
+        <div className="relative w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"/>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"/>
+          </svg>
+        </div>
+
+        {/* Text */}
+        <div className="relative">
+          <h2 className="text-xl font-bold mb-3 leading-tight">{content.greeting}</h2>
+          <p className="text-sm text-brand-100 leading-relaxed mb-7">{content.quote}</p>
+
+          {/* CTA Button */}
+          <button
+            onClick={dismiss}
+            className="w-full bg-white text-brand-700 font-semibold py-3 rounded-xl hover:bg-brand-50 active:scale-95 transition-all text-sm"
+          >
+            {lang === 'id' ? 'Ayo Mulai Hari Ini!' : "Let's Make It Happen!"}
+          </button>
+        </div>
       </div>
     </div>
   )
