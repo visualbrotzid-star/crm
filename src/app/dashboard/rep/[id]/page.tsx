@@ -3,15 +3,26 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { DailyLog, KpiTarget, KpiMetric, Lead, LeadActivity, KPI_LABELS, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
+import { DailyLog, KpiTarget, KpiMetric, Lead, LeadActivity, LEAD_STATUS_COLORS } from '@/types'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
 import KpiCard from '@/components/ui/KpiCard'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, startOfWeek, startOfMonth, startOfQuarter } from 'date-fns'
 import Link from 'next/link'
 import clsx from 'clsx'
 
 const METRICS: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
+
+function getPeriodStart(period: string): string {
+  const now = new Date()
+  switch (period) {
+    case 'daily': return now.toISOString().split('T')[0]
+    case 'weekly': return startOfWeek(now, { weekStartsOn: 1 }).toISOString().split('T')[0]
+    case 'monthly': return startOfMonth(now).toISOString().split('T')[0]
+    case 'quarterly': return startOfQuarter(now).toISOString().split('T')[0]
+    default: return now.toISOString().split('T')[0]
+  }
+}
 
 export default function RepDetailPage() {
   const params = useParams()
@@ -22,6 +33,11 @@ export default function RepDetailPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [activities, setActivities] = useState<LeadActivity[]>([])
   const [loading, setLoading] = useState(true)
+
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
+  const [periodLeads, setPeriodLeads] = useState<Lead[]>([])
+  const [loadingPeriod, setLoadingPeriod] = useState(false)
+
   const supabase = createClient()
   const { t } = useI18n()
   const L = useLabels()
@@ -32,12 +48,12 @@ export default function RepDetailPage() {
       if (!session) { window.location.href = '/login'; return }
       const { data: repData } = await supabase.from('profiles').select('*').eq('id', id).single()
       const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', id).order('log_date', { ascending: false }).limit(60)
-      const { data: t } = await supabase.from('kpi_targets').select('*')
+      const { data: tData } = await supabase.from('kpi_targets').select('*')
       const { data: leadsData } = await supabase.from('leads').select('*').eq('rep_id', id).order('updated_at', { ascending: false })
       const { data: actData } = await supabase.from('lead_activities').select('*').eq('rep_id', id).order('created_at', { ascending: false }).limit(50)
       setRep(repData)
       setLogs(logsData || [])
-      setTargets(t || [])
+      setTargets(tData || [])
       setLeads(leadsData || [])
       setActivities(actData || [])
       setLoading(false)
@@ -45,15 +61,36 @@ export default function RepDetailPage() {
     load()
   }, [id])
 
+  async function openPeriodDetail(period: string) {
+    setSelectedPeriod(period)
+    setLoadingPeriod(true)
+    const startDate = getPeriodStart(period)
+    const today = new Date().toISOString().split('T')[0]
+
+    const { data: actData } = await supabase
+      .from('lead_activities')
+      .select('lead_id')
+      .eq('rep_id', id)
+      .gte('activity_date', startDate)
+      .lte('activity_date', today)
+
+    const uniqueLeadIds = Array.from(new Set((actData || []).map((a: any) => a.lead_id)))
+    const matchedLeads = leads.filter(l => uniqueLeadIds.includes(l.id))
+    setPeriodLeads(matchedLeads)
+    setLoadingPeriod(false)
+  }
+
   if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading...</div>
   if (!rep) return <div className="p-4 md:p-8 text-gray-400 text-sm">{t('leads.repNotFound')}</div>
 
   const getTarget = (period: string) => targets.find((t: KpiTarget) => t.period === period) as KpiTarget | null
   const periods = ['daily', 'weekly', 'monthly', 'quarterly'] as const
-    const initials = rep.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+  const initials = rep.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
   const weeklyLogs = filterLogsByPeriod(logs, 'weekly')
   const weeklyPct = calcCompletionPct(sumLogs(weeklyLogs), getTarget('weekly'))
   const leadName = (leadId: string) => leads.find(l => l.id === leadId)?.business_name || 'a lead'
+
+  const selectedPeriodLabel = selectedPeriod ? L.period(selectedPeriod) : ''
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
@@ -80,11 +117,20 @@ export default function RepDetailPage() {
           <div key={period} className="card p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-gray-900 dark:text-gray-100">{L.period(period)}</h2>
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-20 md:w-24 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div className={clsx('h-full rounded-full', getStatusBg(pct))} style={{ width: `${pct}%` }} />
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-20 md:w-24 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className={clsx('h-full rounded-full', getStatusBg(pct))} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className={clsx('text-sm font-semibold', getStatusColor(pct))}>{pct}%</span>
                 </div>
-                <span className={clsx('text-sm font-semibold', getStatusColor(pct))}>{pct}%</span>
+                <button
+                  onClick={() => openPeriodDetail(period)}
+                  className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+                >
+                  Lihat Client
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -136,6 +182,97 @@ export default function RepDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Period clients modal */}
+      {selectedPeriod && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setSelectedPeriod(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Client {selectedPeriodLabel}</h2>
+                <p className="text-sm text-gray-400 mt-0.5">{rep.full_name}</p>
+              </div>
+              <button onClick={() => setSelectedPeriod(null)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="overflow-y-auto flex-1 p-6">
+              {loadingPeriod ? (
+                <div className="flex items-center justify-center py-12">
+                  <p className="text-sm text-gray-400">Loading...</p>
+                </div>
+              ) : !periodLeads.length ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">Belum ada client</p>
+                  <p className="text-sm text-gray-400 mt-1">Tidak ada aktivitas tercatat untuk periode ini</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-xs text-gray-400 mb-2">{periodLeads.length} client dicontact</p>
+                  {periodLeads.map(lead => (
+                    <div key={lead.id} className="rounded-xl border border-gray-100 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-800/50">
+                      {/* Name + status */}
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 leading-tight">{lead.business_name}</h3>
+                        <span className={clsx('text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0', LEAD_STATUS_COLORS[lead.status])}>
+                          {L.status(lead.status)}
+                        </span>
+                      </div>
+
+                      {/* Details grid */}
+                      <div className="space-y-1.5">
+                        {lead.location && (
+                          <div className="flex items-start gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">{lead.location}</p>
+                          </div>
+                        )}
+                        {lead.contact_number && (
+                          <div className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.9 1.26h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.29 6.29l1.1-1.1a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
+                            <a href={`tel:${lead.contact_number}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline">{lead.contact_number}</a>
+                          </div>
+                        )}
+                        {lead.email && (
+                          <div className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <a href={`mailto:${lead.email}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline truncate">{lead.email}</a>
+                          </div>
+                        )}
+                        {lead.instagram_id && (
+                          <div className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">{lead.instagram_id}</p>
+                          </div>
+                        )}
+                        {lead.website && (
+                          <div className="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            <a href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-600 dark:text-brand-400 hover:underline truncate">{lead.website}</a>
+                          </div>
+                        )}
+                        {lead.remarks && (
+                          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-400 leading-relaxed">{lead.remarks}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex-shrink-0">
+              <button onClick={() => setSelectedPeriod(null)} className="btn-secondary w-full">Tutup</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
