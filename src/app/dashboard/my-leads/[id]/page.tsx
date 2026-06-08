@@ -60,6 +60,7 @@ export default function LeadDetailPage() {
     // Log the KPI activity for this status (dated, single source of truth)
     const metric = STATUS_TO_KPI[newStatus]
     if (metric) await logActivity(metric, `Lead moved to ${L.status(newStatus)}`)
+    router.refresh()
     setSaving(false)
     setLoading(true)
     await load()
@@ -69,6 +70,7 @@ export default function LeadDetailPage() {
     setSaving(true)
     await logActivity(type, `Logged ${L.kpi(type)}`)
     await supabase.from('leads').update({ updated_at: new Date().toISOString() }).eq('id', id)
+    router.refresh()
     setSaving(false)
     setLoading(true)
     await load()
@@ -81,6 +83,7 @@ export default function LeadDetailPage() {
     await supabase.from('lead_notes').insert({ lead_id: id, author_id: session!.user.id, note: newNote })
     await supabase.from('leads').update({ updated_at: new Date().toISOString() }).eq('id', id)
     setNewNote('')
+    router.refresh()
     setSaving(false)
     setLoading(true)
     await load()

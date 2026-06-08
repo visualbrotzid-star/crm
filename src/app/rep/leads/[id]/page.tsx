@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, LeadNote, LeadActivity, LeadStatus, KpiMetric, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, STATUS_TO_KPI, KPI_LABELS } from '@/types'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
@@ -12,6 +12,7 @@ const LOGGABLE: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_b
 
 export default function LeadDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
   const [lead, setLead] = useState<Lead | null>(null)
   const [notes, setNotes] = useState<LeadNote[]>([])
@@ -58,6 +59,7 @@ export default function LeadDetailPage() {
     // Log the KPI activity for this status (dated, single source of truth)
     const metric = STATUS_TO_KPI[newStatus]
     if (metric) await logActivity(metric, `Lead moved to ${L.status(newStatus)}`)
+    router.refresh()
     setSaving(false)
     setLoading(true)
     await load()
@@ -67,6 +69,7 @@ export default function LeadDetailPage() {
     setSaving(true)
     await logActivity(type, `Logged ${L.kpi(type)}`)
     await supabase.from('leads').update({ updated_at: new Date().toISOString() }).eq('id', id)
+    router.refresh()
     setSaving(false)
     setLoading(true)
     await load()
@@ -79,6 +82,7 @@ export default function LeadDetailPage() {
     await supabase.from('lead_notes').insert({ lead_id: id, author_id: session!.user.id, note: newNote })
     await supabase.from('leads').update({ updated_at: new Date().toISOString() }).eq('id', id)
     setNewNote('')
+    router.refresh()
     setSaving(false)
     setLoading(true)
     await load()
