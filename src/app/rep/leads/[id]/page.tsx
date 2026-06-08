@@ -6,8 +6,6 @@ import { createClient } from '@/lib/supabase/client'
 import { Lead, LeadNote, LeadActivity, LeadStatus, KpiMetric, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, STATUS_TO_KPI, KPI_LABELS } from '@/types'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { format, parseISO } from 'date-fns'
-import Link from 'next/link'
-
 const LOGGABLE: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
 
 export default function LeadDetailPage() {
@@ -94,7 +92,7 @@ export default function LeadDetailPage() {
   return (
     <div className="p-4 md:p-8 max-w-3xl">
       <div className="mb-4">
-        <Link href="/rep/leads" className="text-sm text-brand-600 hover:text-brand-800">&larr; Back to leads</Link>
+        <a href="/rep/leads" className="text-sm text-brand-600 hover:text-brand-800">&larr; Back to leads</a>
       </div>
 
       <div className="card p-6 mb-6">
