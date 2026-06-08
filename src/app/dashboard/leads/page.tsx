@@ -5,6 +5,14 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Lead, Profile, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
+import { format, parseISO, isToday, isYesterday } from 'date-fns'
+
+function formatTime(ts: string) {
+  const d = parseISO(ts)
+  if (isToday(d)) return `Hari ini, ${format(d, 'HH:mm')}`
+  if (isYesterday(d)) return `Kemarin, ${format(d, 'HH:mm')}`
+  return format(d, 'd MMM yyyy, HH:mm')
+}
 
 export default function ManagerLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
@@ -29,7 +37,11 @@ export default function ManagerLeadsPage() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const interval = setInterval(load, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   async function handleDelete(leadId: string) {
     setDeleting(true)
@@ -81,6 +93,7 @@ export default function ManagerLeadsPage() {
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.contact')}</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.location')}</th>
               <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">{t('leads.status')}</th>
+              <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase">Terakhir Update</th>
               <th className="px-6 py-4"></th>
             </tr>
           </thead>
@@ -92,6 +105,7 @@ export default function ManagerLeadsPage() {
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.contact_number || lead.email || '-'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{lead.location || '-'}</td>
                 <td className="px-6 py-4"><span className={`text-xs font-medium px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>{L.status(lead.status)}</span></td>
+                <td className="px-6 py-4 text-xs text-gray-400 whitespace-nowrap">{formatTime(lead.updated_at)}</td>
                 <td className="px-6 py-4 text-right whitespace-nowrap">
                   <Link href={`/dashboard/leads/${lead.id}`} className="text-sm text-brand-600 dark:text-brand-400 hover:underline font-medium mr-4">{t('common.view')}</Link>
                   <button onClick={() => setConfirmDeleteId(lead.id)} className="text-sm text-red-500 hover:text-red-700 font-medium">Delete</button>
@@ -117,6 +131,7 @@ export default function ManagerLeadsPage() {
                 {(lead.contact_number || lead.email) && <p>{lead.contact_number || lead.email}</p>}
                 {lead.location && <p>{lead.location}</p>}
               </div>
+              <p className="text-xs text-gray-400 mt-2">{formatTime(lead.updated_at)}</p>
             </Link>
             <button
               onClick={() => setConfirmDeleteId(lead.id)}
