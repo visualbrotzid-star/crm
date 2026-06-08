@@ -50,7 +50,12 @@ export default function LeadDetailPage() {
     if (!lead || newStatus === lead.status) return
     setSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
-    await supabase.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id)
+    const { error: updateError } = await supabase.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id)
+    if (updateError) {
+      alert(`Gagal mengubah status: ${updateError.message}`)
+      setSaving(false)
+      return
+    }
     await supabase.from('lead_notes').insert({
       lead_id: id, author_id: session!.user.id,
       note: `Status changed to ${L.status(newStatus)}`, status_change: newStatus,
