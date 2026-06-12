@@ -47,11 +47,11 @@ export default function Sidebar({ profile }: { profile: Profile }) {
     <>
       <div className="px-5 py-5 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-b from-brand-600 to-brand-700 rounded-lg flex items-center justify-center shadow-vb-blue">
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
           </div>
           <div>
-            <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-none">SalesTrack</p>
+            <p className="font-extrabold tracking-tight text-ink dark:text-gray-100 text-sm leading-none">Sales<span className="text-brand-600">Track</span></p>
             <p className="text-xs text-gray-400 mt-0.5">{t('nav.kpiDashboard')}</p>
           </div>
         </div>
@@ -87,10 +87,10 @@ export default function Sidebar({ profile }: { profile: Profile }) {
     <>
       <div className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center">
+          <div className="w-7 h-7 bg-gradient-to-b from-brand-600 to-brand-700 rounded-lg flex items-center justify-center shadow-vb-blue">
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
           </div>
-          <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">SalesTrack</span>
+          <span className="font-extrabold tracking-tight text-ink dark:text-gray-100 text-sm">Sales<span className="text-brand-600">Track</span></span>
         </div>
         <button onClick={() => setOpen(true)} aria-label="Open menu" className="p-2 text-gray-600 dark:text-gray-300">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>

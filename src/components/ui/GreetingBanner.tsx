@@ -100,13 +100,13 @@ export default function GreetingBanner({ name, lang = 'en' }: Props) {
 
         {/* Text */}
         <div className="relative">
-          <h2 className="text-xl font-bold mb-3 leading-tight">{content.greeting}</h2>
+          <h2 className="font-display text-3xl font-normal mb-3 leading-tight">{content.greeting}</h2>
           <p className="text-sm text-brand-100 leading-relaxed mb-7">{content.quote}</p>
 
           {/* CTA Button */}
           <button
             onClick={dismiss}
-            className="w-full bg-white text-brand-700 font-semibold py-3 rounded-xl hover:bg-brand-50 active:scale-95 transition-all text-sm"
+            className="w-full bg-white text-brand-700 font-semibold py-3 rounded-full hover:bg-brand-50 active:scale-95 transition-all text-sm"
           >
             {lang === 'id' ? 'Ayo Mulai Hari Ini!' : "Let's Make It Happen!"}
           </button>

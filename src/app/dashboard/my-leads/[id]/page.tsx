@@ -107,7 +107,7 @@ export default function LeadDetailPage() {
     <div className="p-4 md:p-8 max-w-3xl">
       <div className="flex items-center justify-between mb-4">
         <a href="/dashboard/my-leads" className="text-sm text-brand-600 hover:text-brand-800">&larr; Back to leads</a>
-        <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+        <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
           </svg>
@@ -135,7 +135,7 @@ export default function LeadDetailPage() {
         <div className="flex gap-2 flex-wrap">
           {LEAD_STATUSES.map(s => (
             <button key={s} onClick={() => changeStatus(s)} disabled={saving || s === lead.status}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${s === lead.status ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${s === lead.status ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
               {L.status(s)}
             </button>
           ))}
@@ -149,7 +149,7 @@ export default function LeadDetailPage() {
         <div className="flex gap-2 flex-wrap">
           {LOGGABLE.map(m => (
             <button key={m} onClick={() => manualLog(m)} disabled={saving}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:text-brand-700 dark:hover:text-brand-300 transition-all">
+              className="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:text-brand-700 dark:hover:text-brand-300 transition-all">
               + {L.kpi(m)}
             </button>
           ))}

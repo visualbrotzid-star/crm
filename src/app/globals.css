@@ -5,13 +5,22 @@
 @layer base {
   * { box-sizing: border-box; }
   html { -webkit-tap-highlight-color: transparent; }
-  body { @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors; }
+  /* Paper background + ink text, matching visualbrotz.com */
+  body { @apply bg-paper text-ink dark:bg-gray-950 dark:text-gray-100 transition-colors antialiased; }
+  ::selection { @apply bg-brand-600 text-white; }
 }
 
 @layer components {
-  .card { @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm; }
-  .btn-primary { @apply bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50; }
-  .btn-secondary { @apply bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors; }
-  .input { @apply w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500; }
-  .label { @apply block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1; }
+  .card { @apply bg-white dark:bg-gray-900 rounded-2xl border border-line dark:border-gray-800 shadow-vb-sm; }
+  /* Pill buttons with the visualbrotz.com blue gradient + layered blue shadow */
+  .btn-primary {
+    @apply bg-gradient-to-b from-brand-600 to-brand-700 text-white font-semibold px-5 py-2.5 rounded-full shadow-vb-blue
+      transition-all duration-200 hover:-translate-y-px hover:shadow-vb-blue-hover active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0;
+  }
+  .btn-secondary {
+    @apply bg-white dark:bg-gray-800 text-ink dark:text-gray-200 font-semibold px-5 py-2.5 rounded-full border border-line dark:border-gray-700 shadow-vb-sm
+      transition-all duration-200 hover:border-brand-600 hover:text-brand-600 dark:hover:text-brand-400 hover:-translate-y-px;
+  }
+  .input { @apply w-full bg-white dark:bg-gray-800 border border-line dark:border-gray-700 text-ink dark:text-gray-100 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent placeholder:text-ink-faint dark:placeholder:text-gray-500 transition-colors; }
+  .label { @apply block text-xs font-medium text-ink-muted dark:text-gray-400 mb-1; }
 }

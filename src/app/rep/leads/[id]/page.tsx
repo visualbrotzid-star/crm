@@ -120,7 +120,7 @@ export default function LeadDetailPage() {
         <div className="flex gap-2 flex-wrap">
           {LEAD_STATUSES.map(s => (
             <button key={s} onClick={() => changeStatus(s)} disabled={saving || s === lead.status}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${s === lead.status ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${s === lead.status ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
               {L.status(s)}
             </button>
           ))}
@@ -134,7 +134,7 @@ export default function LeadDetailPage() {
         <div className="flex gap-2 flex-wrap">
           {LOGGABLE.map(m => (
             <button key={m} onClick={() => manualLog(m)} disabled={saving}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:text-brand-700 dark:hover:text-brand-300 transition-all">
+              className="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/30 hover:text-brand-700 dark:hover:text-brand-300 transition-all">
               + {L.kpi(m)}
             </button>
           ))}
