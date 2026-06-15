@@ -21,8 +21,10 @@ export default function DashboardPage() {
   const { t, lang } = useI18n()
 
   useEffect(() => {
+    let active = true
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
+      if (!active) return
       if (session) {
         const { data: me } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
         setProfile(me)
@@ -51,6 +53,17 @@ export default function DashboardPage() {
       setLoading(false)
     }
     load()
+    // Keep team totals live: refresh every 30s and on tab focus
+    const interval = setInterval(load, 30000)
+    const onFocus = () => { if (document.visibilityState === 'visible') load() }
+    document.addEventListener('visibilitychange', onFocus)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      active = false
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [])
 
   const onTrack = summaries.filter(s => s.completion_pct >= 90).length

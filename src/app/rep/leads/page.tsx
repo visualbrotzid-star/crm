@@ -33,7 +33,14 @@ export default function RepLeadsPage() {
     setSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
-    await supabase.from('leads').insert({ ...form, rep_id: session.user.id, status: 'new' })
+    const { data: newLead } = await supabase.from('leads').insert({ ...form, rep_id: session.user.id, status: 'new' }).select('id').single()
+    // Adding a lead counts as one "business contacted" toward the rep's KPI
+    if (newLead) {
+      await supabase.from('lead_activities').insert({
+        lead_id: newLead.id, rep_id: session.user.id, activity_type: 'businesses_contacted',
+        activity_date: new Date().toISOString().split('T')[0], note: 'Lead added',
+      })
+    }
     setShowModal(false)
     setForm({ business_name: '', email: '', instagram_id: '', website: '', contact_number: '', location: '', remarks: '' })
     setSaving(false)

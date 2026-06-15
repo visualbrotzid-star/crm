@@ -22,18 +22,31 @@ export default function RepDashboard() {
   const L = useLabels()
 
   useEffect(() => {
+    let active = true
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { window.location.href = '/login'; return }
       const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
       const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', session.user.id).order('log_date', { ascending: false }).limit(90)
       const { data: t } = await supabase.from('kpi_targets').select('*')
+      if (!active) return
       setProfile(prof)
       setLogs(logsData || [])
       setTargets(t || [])
       setLoading(false)
     }
     load()
+    // Keep KPIs live: refresh every 30s and whenever the tab regains focus
+    const interval = setInterval(load, 30000)
+    const onFocus = () => { if (document.visibilityState === 'visible') load() }
+    document.addEventListener('visibilitychange', onFocus)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      active = false
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [])
 
   if (loading) return <div className="p-8 text-gray-400 text-sm">Loading...</div>

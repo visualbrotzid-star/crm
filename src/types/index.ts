@@ -94,9 +94,11 @@ export const LEAD_STATUS_COLORS: Record<LeadStatus, string> = {
   lost: 'bg-red-50 text-red-700',
 }
 
-// Which KPI metric each status maps to when reached
+// Which KPI metric each status maps to when reached.
+// Note: 'businesses_contacted' is counted once when a lead is created (every lead = one
+// contacted business), so 'contacted' status is intentionally NOT mapped here to avoid
+// double-counting. Later pipeline stages still count their own KPI.
 export const STATUS_TO_KPI: Partial<Record<LeadStatus, KpiMetric>> = {
-  contacted: 'businesses_contacted',
   follow_up: 'follow_ups',
   negotiation: 'meetings_booked',
   won: 'deals_closed',

@@ -43,6 +43,7 @@ export default function RepDetailPage() {
   const L = useLabels()
 
   useEffect(() => {
+    let active = true
     async function load() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { window.location.href = '/login'; return }
@@ -51,6 +52,7 @@ export default function RepDetailPage() {
       const { data: tData } = await supabase.from('kpi_targets').select('*')
       const { data: leadsData } = await supabase.from('leads').select('*').eq('rep_id', id).order('updated_at', { ascending: false })
       const { data: actData } = await supabase.from('lead_activities').select('*').eq('rep_id', id).order('created_at', { ascending: false }).limit(50)
+      if (!active) return
       setRep(repData)
       setLogs(logsData || [])
       setTargets(tData || [])
@@ -59,6 +61,17 @@ export default function RepDetailPage() {
       setLoading(false)
     }
     load()
+    // Keep this agent's KPIs live: refresh every 30s and on tab focus
+    const interval = setInterval(load, 30000)
+    const onFocus = () => { if (document.visibilityState === 'visible') load() }
+    document.addEventListener('visibilitychange', onFocus)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      active = false
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [id])
 
   async function openPeriodDetail(period: string) {
