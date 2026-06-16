@@ -18,6 +18,7 @@ export default function TeamPage() {
   const [form, setForm] = useState({ email: '', password: '', full_name: '', user_role: 'rep' as Role })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
   const supabase = createClient()
   const { t } = useI18n()
   const L = useLabels()
@@ -41,7 +42,24 @@ export default function TeamPage() {
     setLoading(false)
   }
 
-  useEffect(() => { loadAll() }, [])
+  async function handleRefresh() {
+    setRefreshing(true)
+    await loadAll()
+    setRefreshing(false)
+  }
+
+  useEffect(() => {
+    loadAll()
+    const interval = setInterval(loadAll, 30000)
+    const onFocus = () => { if (document.visibilityState === 'visible') loadAll() }
+    document.addEventListener('visibilitychange', onFocus)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [])
 
   function openCreate() {
     setEditUser(null)
@@ -137,7 +155,12 @@ export default function TeamPage() {
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('team.title')}</h1>
           <p className="text-gray-500 text-sm mt-1">{users.length} users</p>
         </div>
-        <button onClick={openCreate} className="btn-primary">{t('team.addUser')}</button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleRefresh} disabled={refreshing} className="p-2 rounded-xl text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors" title="Refresh">
+            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </button>
+          <button onClick={openCreate} className="btn-primary">{t('team.addUser')}</button>
+        </div>
       </div>
 
       {/* Desktop table */}

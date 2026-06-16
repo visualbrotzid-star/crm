@@ -21,6 +21,7 @@ export default function ManagerLeadsPage() {
   const [filter, setFilter] = useState<LeadStatus | 'all'>('all')
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const supabase = createClient()
   const L = useLabels()
   const { t } = useI18n()
@@ -37,10 +38,23 @@ export default function ManagerLeadsPage() {
     setLoading(false)
   }
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    await load()
+    setRefreshing(false)
+  }
+
   useEffect(() => {
     load()
     const interval = setInterval(load, 30000)
-    return () => clearInterval(interval)
+    const onFocus = () => { if (document.visibilityState === 'visible') load() }
+    document.addEventListener('visibilitychange', onFocus)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [])
 
   async function handleDelete(leadId: string) {
@@ -62,9 +76,14 @@ export default function ManagerLeadsPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('leads.title')}</h1>
-        <p className="text-gray-500 text-sm mt-1">{leads.length} leads across your team</p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('leads.title')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{leads.length} leads across your team</p>
+        </div>
+        <button onClick={handleRefresh} disabled={refreshing} className="p-2 rounded-xl text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors mt-1" title="Refresh">
+          <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        </button>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">

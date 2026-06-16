@@ -17,32 +17,36 @@ export default function RepDashboard() {
   const [logs, setLogs] = useState<DailyLog[]>([])
   const [targets, setTargets] = useState<KpiTarget[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const supabase = createClient()
   const { t, lang } = useI18n()
   const L = useLabels()
 
+  async function load() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login'; return }
+    const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+    const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', session.user.id).order('log_date', { ascending: false }).limit(90)
+    const { data: tData } = await supabase.from('kpi_targets').select('*')
+    setProfile(prof)
+    setLogs(logsData || [])
+    setTargets(tData || [])
+    setLoading(false)
+  }
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    await load()
+    setRefreshing(false)
+  }
+
   useEffect(() => {
-    let active = true
-    async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { window.location.href = '/login'; return }
-      const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-      const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', session.user.id).order('log_date', { ascending: false }).limit(90)
-      const { data: t } = await supabase.from('kpi_targets').select('*')
-      if (!active) return
-      setProfile(prof)
-      setLogs(logsData || [])
-      setTargets(t || [])
-      setLoading(false)
-    }
     load()
-    // Keep KPIs live: refresh every 30s and whenever the tab regains focus
     const interval = setInterval(load, 30000)
     const onFocus = () => { if (document.visibilityState === 'visible') load() }
     document.addEventListener('visibilitychange', onFocus)
     window.addEventListener('focus', onFocus)
     return () => {
-      active = false
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onFocus)
       window.removeEventListener('focus', onFocus)
@@ -71,11 +75,16 @@ export default function RepDashboard() {
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('rep.myPerformance')}</h1>
           <p className="text-gray-500 text-sm mt-1">Hi {profile?.full_name?.split(' ')[0]} - here is how you are tracking</p>
         </div>
-        {!loggedToday ? (
-          <a href="/rep/leads" className="btn-primary">{t('rep.addLead')}</a>
-        ) : (
-          <span className="bg-emerald-50 text-emerald-700 text-sm font-medium px-3 py-2 rounded-xl">{t('rep.active')}</span>
-        )}
+        <div className="flex items-center gap-2">
+          <button onClick={handleRefresh} disabled={refreshing} className="p-2 rounded-xl text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors" title="Refresh">
+            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </button>
+          {!loggedToday ? (
+            <a href="/rep/leads" className="btn-primary">{t('rep.addLead')}</a>
+          ) : (
+            <span className="bg-emerald-50 text-emerald-700 text-sm font-medium px-3 py-2 rounded-xl">{t('rep.active')}</span>
+          )}
+        </div>
       </div>
       <div className="space-y-6">
         {periods.map(({ key, label }) => {

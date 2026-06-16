@@ -33,6 +33,7 @@ export default function RepDetailPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [activities, setActivities] = useState<LeadActivity[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
   const [periodLeads, setPeriodLeads] = useState<Lead[]>([])
@@ -42,32 +43,35 @@ export default function RepDetailPage() {
   const { t } = useI18n()
   const L = useLabels()
 
+  async function load() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login'; return }
+    const { data: repData } = await supabase.from('profiles').select('*').eq('id', id).single()
+    const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', id).order('log_date', { ascending: false }).limit(60)
+    const { data: tData } = await supabase.from('kpi_targets').select('*')
+    const { data: leadsData } = await supabase.from('leads').select('*').eq('rep_id', id).order('updated_at', { ascending: false })
+    const { data: actData } = await supabase.from('lead_activities').select('*').eq('rep_id', id).order('created_at', { ascending: false }).limit(50)
+    setRep(repData)
+    setLogs(logsData || [])
+    setTargets(tData || [])
+    setLeads(leadsData || [])
+    setActivities(actData || [])
+    setLoading(false)
+  }
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    await load()
+    setRefreshing(false)
+  }
+
   useEffect(() => {
-    let active = true
-    async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { window.location.href = '/login'; return }
-      const { data: repData } = await supabase.from('profiles').select('*').eq('id', id).single()
-      const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').eq('rep_id', id).order('log_date', { ascending: false }).limit(60)
-      const { data: tData } = await supabase.from('kpi_targets').select('*')
-      const { data: leadsData } = await supabase.from('leads').select('*').eq('rep_id', id).order('updated_at', { ascending: false })
-      const { data: actData } = await supabase.from('lead_activities').select('*').eq('rep_id', id).order('created_at', { ascending: false }).limit(50)
-      if (!active) return
-      setRep(repData)
-      setLogs(logsData || [])
-      setTargets(tData || [])
-      setLeads(leadsData || [])
-      setActivities(actData || [])
-      setLoading(false)
-    }
     load()
-    // Keep this agent's KPIs live: refresh every 30s and on tab focus
     const interval = setInterval(load, 30000)
     const onFocus = () => { if (document.visibilityState === 'visible') load() }
     document.addEventListener('visibilitychange', onFocus)
     window.addEventListener('focus', onFocus)
     return () => {
-      active = false
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onFocus)
       window.removeEventListener('focus', onFocus)
@@ -116,9 +120,14 @@ export default function RepDetailPage() {
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">{rep.full_name}</h1>
           <p className="text-gray-400 text-sm truncate">{rep.email}</p>
         </div>
-        <div className="ml-auto text-right flex-shrink-0">
-          <p className={clsx('text-2xl md:text-3xl font-bold', getStatusColor(weeklyPct))}>{weeklyPct}%</p>
-          <p className={clsx('text-xs md:text-sm font-medium', getStatusColor(weeklyPct))}>{getStatusLabel(weeklyPct)}</p>
+        <div className="ml-auto text-right flex-shrink-0 flex items-center gap-3">
+          <button onClick={handleRefresh} disabled={refreshing} className="p-2 rounded-xl text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors" title="Refresh">
+            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </button>
+          <div>
+            <p className={clsx('text-2xl md:text-3xl font-bold', getStatusColor(weeklyPct))}>{weeklyPct}%</p>
+            <p className={clsx('text-xs md:text-sm font-medium', getStatusColor(weeklyPct))}>{getStatusLabel(weeklyPct)}</p>
+          </div>
         </div>
       </div>
 
