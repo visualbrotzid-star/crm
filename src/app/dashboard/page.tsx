@@ -7,7 +7,7 @@ import { sumLogs, calcCompletionPct } from '@/lib/kpi'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import RepRow from '@/components/ui/RepRow'
 import GreetingBanner from '@/components/ui/GreetingBanner'
-import { format } from 'date-fns'
+import { format, startOfWeek } from 'date-fns'
 
 export default function DashboardPage() {
   const [reps, setReps] = useState<Profile[]>([])
@@ -28,9 +28,8 @@ export default function DashboardPage() {
       setProfile(me)
     }
     const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
-    const weekStart = new Date()
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1)
-    const { data: logs } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', weekStart.toISOString().split('T')[0])
+    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
+    const { data: logs } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', weekStart)
     const { data: targets } = await supabase.from('kpi_targets').select('*').eq('period', 'weekly').single()
     const sums = (repsData || []).map(rep => {
       const repLogs = (logs || []).filter((l: DailyLog) => l.rep_id === rep.id)

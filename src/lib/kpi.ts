@@ -1,5 +1,5 @@
 import { DailyLog, KpiTarget, KpiMetric } from '@/types'
-import { startOfWeek, startOfMonth, startOfQuarter, isAfter, parseISO } from 'date-fns'
+import { format, startOfWeek, startOfMonth, startOfQuarter } from 'date-fns'
 
 export function sumLogs(logs: DailyLog[]): Record<KpiMetric, number> {
   return {
@@ -14,17 +14,23 @@ export function sumLogs(logs: DailyLog[]): Record<KpiMetric, number> {
 
 export function filterLogsByPeriod(logs: DailyLog[], period: 'daily' | 'weekly' | 'monthly' | 'quarterly'): DailyLog[] {
   const now = new Date()
-  const today = now.toISOString().split('T')[0]
+  const today = format(now, 'yyyy-MM-dd')
 
   switch (period) {
     case 'daily':
       return logs.filter(l => l.log_date === today)
-    case 'weekly':
-      return logs.filter(l => isAfter(parseISO(l.log_date), startOfWeek(now, { weekStartsOn: 1 })))
-    case 'monthly':
-      return logs.filter(l => isAfter(parseISO(l.log_date), startOfMonth(now)))
-    case 'quarterly':
-      return logs.filter(l => isAfter(parseISO(l.log_date), startOfQuarter(now)))
+    case 'weekly': {
+      const weekStart = format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd')
+      return logs.filter(l => l.log_date >= weekStart)
+    }
+    case 'monthly': {
+      const monthStart = format(startOfMonth(now), 'yyyy-MM-dd')
+      return logs.filter(l => l.log_date >= monthStart)
+    }
+    case 'quarterly': {
+      const quarterStart = format(startOfQuarter(now), 'yyyy-MM-dd')
+      return logs.filter(l => l.log_date >= quarterStart)
+    }
     default:
       return logs
   }
