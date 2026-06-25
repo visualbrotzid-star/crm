@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Lead, LeadNote, LeadActivity, LeadStatus, KpiMetric, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, STATUS_TO_KPI, KPI_LABELS } from '@/types'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
+import { businessToday } from '@/lib/date'
 import { format, parseISO } from 'date-fns'
 const LOGGABLE: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
 
@@ -42,7 +43,7 @@ export default function LeadDetailPage() {
     if (!session) return
     await supabase.from('lead_activities').insert({
       lead_id: id, rep_id: session.user.id, activity_type: type,
-      activity_date: new Date().toISOString().split('T')[0], note,
+      activity_date: businessToday(), note,
     })
   }
 

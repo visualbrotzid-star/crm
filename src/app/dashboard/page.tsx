@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { DailyLog, KpiTarget, Profile, KpiMetric } from '@/types'
 import { sumLogs, calcCompletionPct } from '@/lib/kpi'
+import { businessNow } from '@/lib/date'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import { useI18n } from '@/lib/i18n/I18nProvider'
 import RepRow from '@/components/ui/RepRow'
 import GreetingBanner from '@/components/ui/GreetingBanner'
@@ -28,7 +30,7 @@ export default function DashboardPage() {
       setProfile(me)
     }
     const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
-    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
+    const weekStart = format(startOfWeek(businessNow(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
     const { data: logs } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', weekStart)
     const { data: targets } = await supabase.from('kpi_targets').select('*').eq('period', 'weekly').single()
     const sums = (repsData || []).map(rep => {
@@ -68,6 +70,9 @@ export default function DashboardPage() {
       window.removeEventListener('focus', onFocus)
     }
   }, [])
+
+  // Live: refresh team totals the instant any rep logs activity or adds a lead
+  useLiveRefresh(load, 'team-overview')
 
   const onTrack = summaries.filter(s => s.completion_pct >= 90).length
   const behind = summaries.filter(s => s.completion_pct < 60).length

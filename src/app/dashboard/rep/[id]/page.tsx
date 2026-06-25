@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import { DailyLog, KpiTarget, KpiMetric, Lead, LeadActivity, LEAD_STATUS_COLORS } from '@/types'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
+import { businessNow, businessToday } from '@/lib/date'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import KpiCard from '@/components/ui/KpiCard'
 import { format, parseISO, startOfWeek, startOfMonth, startOfQuarter } from 'date-fns'
 import Link from 'next/link'
@@ -14,13 +16,13 @@ import clsx from 'clsx'
 const METRICS: KpiMetric[] = ['businesses_contacted', 'follow_ups', 'meetings_booked', 'demos_done', 'proposals_sent', 'deals_closed']
 
 function getPeriodStart(period: string): string {
-  const now = new Date()
+  const now = businessNow()
   switch (period) {
-    case 'daily': return now.toISOString().split('T')[0]
-    case 'weekly': return startOfWeek(now, { weekStartsOn: 1 }).toISOString().split('T')[0]
-    case 'monthly': return startOfMonth(now).toISOString().split('T')[0]
-    case 'quarterly': return startOfQuarter(now).toISOString().split('T')[0]
-    default: return now.toISOString().split('T')[0]
+    case 'daily': return businessToday()
+    case 'weekly': return format(startOfWeek(now, { weekStartsOn: 1 }), 'yyyy-MM-dd')
+    case 'monthly': return format(startOfMonth(now), 'yyyy-MM-dd')
+    case 'quarterly': return format(startOfQuarter(now), 'yyyy-MM-dd')
+    default: return businessToday()
   }
 }
 
@@ -78,11 +80,14 @@ export default function RepDetailPage() {
     }
   }, [id])
 
+  // Live: refresh this rep's KPIs the instant they log activity
+  useLiveRefresh(load, `rep-detail-${id}`)
+
   async function openPeriodDetail(period: string) {
     setSelectedPeriod(period)
     setLoadingPeriod(true)
     const startDate = getPeriodStart(period)
-    const today = new Date().toISOString().split('T')[0]
+    const today = businessToday()
 
     const { data: actData } = await supabase
       .from('lead_activities')

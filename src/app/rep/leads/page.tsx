@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Lead, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
+import { businessToday } from '@/lib/date'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import Link from 'next/link'
 
 export default function RepLeadsPage() {
@@ -46,6 +48,8 @@ export default function RepLeadsPage() {
     }
   }, [])
 
+  useLiveRefresh(load, 'rep-leads')
+
   async function handleCreate() {
     if (!form.business_name.trim() || !form.instagram_id.trim() || !form.contact_number.trim() || !form.location.trim()) return
     setSaving(true)
@@ -56,7 +60,7 @@ export default function RepLeadsPage() {
     if (newLead) {
       await supabase.from('lead_activities').insert({
         lead_id: newLead.id, rep_id: session.user.id, activity_type: 'businesses_contacted',
-        activity_date: new Date().toISOString().split('T')[0], note: 'Lead added',
+        activity_date: businessToday(), note: 'Lead added',
       })
     }
     setShowModal(false)

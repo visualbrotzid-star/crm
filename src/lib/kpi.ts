@@ -1,5 +1,6 @@
 import { DailyLog, KpiTarget, KpiMetric } from '@/types'
 import { format, startOfWeek, startOfMonth, startOfQuarter } from 'date-fns'
+import { businessNow, businessToday } from '@/lib/date'
 
 export function sumLogs(logs: DailyLog[]): Record<KpiMetric, number> {
   return {
@@ -13,8 +14,8 @@ export function sumLogs(logs: DailyLog[]): Record<KpiMetric, number> {
 }
 
 export function filterLogsByPeriod(logs: DailyLog[], period: 'daily' | 'weekly' | 'monthly' | 'quarterly'): DailyLog[] {
-  const now = new Date()
-  const today = format(now, 'yyyy-MM-dd')
+  const now = businessNow()
+  const today = businessToday()
 
   switch (period) {
     case 'daily':

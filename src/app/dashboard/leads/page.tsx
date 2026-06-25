@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Lead, Profile, LeadStatus, LEAD_STATUSES, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/types'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import { format, parseISO, isToday, isYesterday } from 'date-fns'
 
 function formatTime(ts: string) {
@@ -56,6 +57,8 @@ export default function ManagerLeadsPage() {
       window.removeEventListener('focus', onFocus)
     }
   }, [])
+
+  useLiveRefresh(load, 'team-leads')
 
   async function handleDelete(leadId: string) {
     setDeleting(true)

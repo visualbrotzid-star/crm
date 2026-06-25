@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { Lead, LeadStatus, LEAD_STATUSES } from '@/types'
+import { businessToday } from '@/lib/date'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import Link from 'next/link'
 
 export default function ManagerMyLeadsPage() {
@@ -48,6 +50,8 @@ export default function ManagerMyLeadsPage() {
     }
   }, [])
 
+  useLiveRefresh(load, 'manager-my-leads')
+
   async function handleDelete(leadId: string) {
     setDeleting(true)
     await supabase.from('lead_notes').delete().eq('lead_id', leadId)
@@ -69,7 +73,7 @@ export default function ManagerMyLeadsPage() {
     if (newLead) {
       await supabase.from('lead_activities').insert({
         lead_id: newLead.id, rep_id: session.user.id, activity_type: 'businesses_contacted',
-        activity_date: new Date().toISOString().split('T')[0], note: 'Lead added',
+        activity_date: businessToday(), note: 'Lead added',
       })
     }
     setShowModal(false)

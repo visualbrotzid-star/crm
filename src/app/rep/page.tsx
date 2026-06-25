@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { DailyLog, KpiTarget, KpiMetric } from '@/types'
 import { sumLogs, filterLogsByPeriod, calcCompletionPct, getStatusColor, getStatusBg, getStatusLabel } from '@/lib/kpi'
+import { businessToday } from '@/lib/date'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import KpiCard from '@/components/ui/KpiCard'
 import GreetingBanner from '@/components/ui/GreetingBanner'
 import { format } from 'date-fns'
@@ -53,6 +55,9 @@ export default function RepDashboard() {
     }
   }, [])
 
+  // Push updates the instant this rep logs anything anywhere
+  useLiveRefresh(load, 'rep-dashboard')
+
   if (loading) return <div className="p-8 text-gray-400 text-sm">Loading...</div>
 
   const getTarget = (p: string) => targets.find((t: KpiTarget) => t.period === p) as KpiTarget | null
@@ -63,7 +68,7 @@ export default function RepDashboard() {
     { key: 'quarterly' as const, label: t('period.thisQuarter') },
   ]
   const today = format(new Date(), 'EEEE, MMMM d')
-  const todayStr = new Date().toISOString().split('T')[0]
+  const todayStr = businessToday()
   const loggedToday = logs.some((l: DailyLog) => l.log_date === todayStr)
 
   return (

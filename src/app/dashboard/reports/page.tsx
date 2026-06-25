@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useI18n, useLabels } from '@/lib/i18n/I18nProvider'
 import { useTheme } from '@/components/theme/ThemeProvider'
 import { DailyLog, Profile, KpiMetric, KPI_LABELS } from '@/types'
+import { businessNow, businessToday } from '@/lib/date'
+import { useLiveRefresh } from '@/lib/useLiveRefresh'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line } from 'recharts'
 import { format, parseISO, subDays } from 'date-fns'
 
@@ -22,19 +24,31 @@ export default function ReportsPage() {
   const axisColor = dark ? '#6b7280' : '#9ca3af'
   const gridColor = dark ? '#1f2937' : '#f0f0f0'
 
+  async function load() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login'; return }
+    const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
+    const since = format(subDays(businessNow(), 30), 'yyyy-MM-dd')
+    const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', since).order('log_date')
+    setReps(repsData || [])
+    setLogs(logsData || [])
+    setLoading(false)
+  }
+
   useEffect(() => {
-    async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { window.location.href = '/login'; return }
-      const { data: repsData } = await supabase.from('profiles').select('*').eq('role', 'rep').order('full_name')
-      const since = subDays(new Date(), 30).toISOString().split('T')[0]
-      const { data: logsData } = await supabase.from('rep_daily_kpis').select('*').gte('log_date', since).order('log_date')
-      setReps(repsData || [])
-      setLogs(logsData || [])
-      setLoading(false)
-    }
     load()
+    const interval = setInterval(load, 30000)
+    const onFocus = () => { if (document.visibilityState === 'visible') load() }
+    document.addEventListener('visibilitychange', onFocus)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onFocus)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [])
+
+  useLiveRefresh(load, 'reports')
 
   if (loading) return <div className="p-4 md:p-8 text-gray-400 text-sm">Loading...</div>
 
@@ -73,7 +87,7 @@ export default function ReportsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `sales-report-${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `sales-report-${businessToday()}.csv`
     a.click()
   }
 
